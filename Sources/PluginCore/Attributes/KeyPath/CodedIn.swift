@@ -25,10 +25,10 @@ package struct CodedIn: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
-        self.inDefaultMode = false
+        inDefaultMode = false
     }
 
     /// Creates a new instance with default node.
@@ -36,8 +36,8 @@ package struct CodedIn: PropertyAttribute {
     /// - Parameter node: The attribute syntax to create with.
     /// - Returns: Newly created attribute instance.
     init() {
-        self.node = .init("\(raw: Self.name)")
-        self.inDefaultMode = true
+        node = .init("\(raw: Self.name)")
+        inDefaultMode = true
     }
 
     /// Builds diagnoser that can validate this macro

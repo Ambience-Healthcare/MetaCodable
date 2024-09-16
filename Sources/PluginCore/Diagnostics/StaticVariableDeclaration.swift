@@ -50,7 +50,7 @@ struct StaticVariableDeclaration<Attr: PropertyAttribute>: DiagnosticProducer {
         guard isStatic ?? false else { return false }
         let message = attr.diagnostic(
             message:
-                "@\(attr.name) can't be used with static variables declarations",
+            "@\(attr.name) can't be used with static variables declarations",
             id: attr.misuseMessageID,
             severity: .error
         )

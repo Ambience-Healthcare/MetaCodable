@@ -1,4 +1,4 @@
-import OrderedCollections
+import MCOrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -37,7 +37,7 @@ package struct CodedAs: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -109,7 +109,7 @@ extension CodedAs: KeyPathProvider {
     ///
     /// - Parameter path: Current `CodingKey` path.
     /// - Returns: Updated `CodingKey` path.
-    func keyPath(withExisting path: [String]) -> [String] { providedPath }
+    func keyPath(withExisting _: [String]) -> [String] { providedPath }
 }
 
 extension Registration where Key == [ExprSyntax], Decl: AttributableDeclSyntax {
@@ -122,15 +122,16 @@ extension Registration where Key == [ExprSyntax], Decl: AttributableDeclSyntax {
     /// - Returns: Newly built registration with value expression data.
     func checkForAlternateValue() -> Self {
         guard
-            self.key.isEmpty,
-            let attr = CodedAs(from: self.decl)
+            key.isEmpty,
+            let attr = CodedAs(from: decl)
         else { return self }
-        return self.updating(with: attr.exprs)
+        return updating(with: attr.exprs)
     }
 }
 
 extension Registration
-where Key == [String], Decl: AttributableDeclSyntax, Var: PropertyVariable {
+    where Key == [String], Decl: AttributableDeclSyntax, Var: PropertyVariable
+{
     /// Update registration with alternate `CodingKey`s data.
     ///
     /// New registration is updated with `CodingKey`s data that will be
@@ -146,13 +147,13 @@ where Key == [String], Decl: AttributableDeclSyntax, Var: PropertyVariable {
         context: some MacroExpansionContext
     ) -> Registration<Decl, Key, AnyPropertyVariable<Var.Initialization>> {
         guard
-            let attr = CodedAs(from: self.decl),
+            let attr = CodedAs(from: decl),
             case let path = attr.providedPath,
             !path.isEmpty
-        else { return self.updating(with: self.variable.any) }
+        else { return updating(with: variable.any) }
         let keys = OrderedSet(codingKeys.add(keys: path, context: context))
-        let oldVar = self.variable
+        let oldVar = variable
         let newVar = AliasedPropertyVariable(base: oldVar, additionalKeys: keys)
-        return self.updating(with: newVar.any)
+        return updating(with: newVar.any)
     }
 }

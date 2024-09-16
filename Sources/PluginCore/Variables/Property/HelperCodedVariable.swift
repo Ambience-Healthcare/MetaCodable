@@ -7,7 +7,8 @@ import SwiftSyntaxMacros
 /// The `HelperCodedVariable` customizes decoding and encoding
 /// by using the helper instance expression provided during initialization.
 struct HelperCodedVariable<Wrapped>: ComposedVariable, PropertyVariable
-where Wrapped: DefaultPropertyVariable {
+    where Wrapped: DefaultPropertyVariable
+{
     /// The customization options for `HelperCodedVariable`.
     ///
     /// `HelperCodedVariable` uses the instance of this type,
@@ -68,19 +69,19 @@ where Wrapped: DefaultPropertyVariable {
     ///
     /// - Returns: The generated variable encoding code.
     func decoding(
-        in context: some MacroExpansionContext,
+        in _: some MacroExpansionContext,
         from location: PropertyCodingLocation
     ) -> CodeBlockItemListSyntax {
         let (_, defMethod) = codingTypeMethod(forMethod: "decode")
         switch location {
-        case .coder(let decoder, let passedMethod):
+        case let .coder(decoder, passedMethod):
             let method = passedMethod ?? defMethod
             return CodeBlockItemListSyntax {
                 """
                 \(decodePrefix)\(name) = try \(options.expr).\(method)(from: \(decoder))
                 """
             }
-        case .container(let container, let key, let passedMethod):
+        case let .container(container, key, passedMethod):
             let method = passedMethod ?? defMethod
             return CodeBlockItemListSyntax {
                 """
@@ -107,19 +108,19 @@ where Wrapped: DefaultPropertyVariable {
     ///
     /// - Returns: The generated variable encoding code.
     func encoding(
-        in context: some MacroExpansionContext,
+        in _: some MacroExpansionContext,
         to location: PropertyCodingLocation
     ) -> CodeBlockItemListSyntax {
         let (_, defMethod) = codingTypeMethod(forMethod: "encode")
         switch location {
-        case .coder(let encoder, let passedMethod):
+        case let .coder(encoder, passedMethod):
             let method = passedMethod ?? defMethod
             return CodeBlockItemListSyntax {
                 """
                 try \(options.expr).\(method)(\(encodePrefix)\(name), to: \(encoder))
                 """
             }
-        case .container(let container, let key, let passedMethod):
+        case let .container(container, key, passedMethod):
             let method = passedMethod ?? defMethod
             return CodeBlockItemListSyntax {
                 """
@@ -131,7 +132,8 @@ where Wrapped: DefaultPropertyVariable {
 }
 
 extension HelperCodedVariable: InitializableVariable
-where Wrapped: InitializableVariable {
+    where Wrapped: InitializableVariable
+{
     /// The initialization type of this variable.
     ///
     /// Initialization type is the same as underlying wrapped variable.
@@ -139,7 +141,7 @@ where Wrapped: InitializableVariable {
 }
 
 extension HelperCodedVariable: AssociatedVariable
-where Wrapped: AssociatedVariable {}
+    where Wrapped: AssociatedVariable {}
 
 /// A `Variable` type representing that doesn't customize
 /// decoding/encoding implementation.

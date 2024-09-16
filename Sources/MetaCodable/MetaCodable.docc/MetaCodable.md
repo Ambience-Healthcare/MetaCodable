@@ -13,18 +13,18 @@ Supercharge `Swift`'s `Codable` implementations with macros.
 
 `MetaCodable` aims to supercharge your `Codable` implementations by providing these inbox features:
 
-- Allows custom `CodingKey` value declaration per variable with ``CodedAt(_:)`` passing single argument, instead of requiring you to write all the `CodingKey` values.
+- Allows custom `CodingKey` value declaration per variable, instead of requiring you to write all the `CodingKey` values with ``CodedAt(_:)`` passing single argument.
 - Allows to create flattened model for nested `CodingKey` values with ``CodedAt(_:)`` and ``CodedIn(_:)``.
 - Allows to create composition of multiple `Codable` types with ``CodedAt(_:)`` passing no arguments.
 - Allows to read data from additional fallback `CodingKey`s provided with ``CodedAs(_:_:)``.
-- Allows to provide default value in case of decoding failures with ``Default(_:)``, or only in case of failures when missing value with ``Default(ifMissing:)``. Different default values can also be used for value missing and other errors respectively with ``Default(ifMissing:forErrors:)``.
+- Allows to provide default value in case of decoding failures with ``Default(_:)``.
 - Allows to create custom decoding/encoding strategies with ``HelperCoder`` and using them with ``CodedBy(_:)``. i.e. ``LossySequenceCoder`` etc.
 - Allows specifying different case values with ``CodedAs(_:_:)`` and case value/protocol type identifier type different from `String` with ``CodedAs()``.
 - Allows specifying enum-case/protocol type identifier path with ``CodedAt(_:)`` and case content path with ``ContentAt(_:_:)``.
-- Allows decoding/encoding enums that lack distinct identifiers for each case data with ``UnTagged()``.
-- Allows to ignore specific properties/cases from decoding/encoding with ``IgnoreCoding()``, ``IgnoreDecoding()`` and ``IgnoreEncoding()``. Allows to ignore encoding based on custom conditions with ``IgnoreEncoding(if:)-1iuvv`` and ``IgnoreEncoding(if:)-7toka``.
+- Allows to ignore specific properties/cases from decoding/encoding with ``IgnoreCoding()``, ``IgnoreDecoding()`` and ``IgnoreEncoding()``.
 - Allows to use camel-case names for variables according to [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/#general-conventions), while enabling a type/case to work with different case style keys with ``CodingKeys(_:)``.
-- Allows to ignore all initialized properties of a type/case from decoding/encoding with ``IgnoreCodingInitialized()`` unless explicitly asked to decode/encode by attaching any coding attributes, i.e. ``CodedIn(_:)``, ``CodedAt(_:)``, ``CodedBy(_:)``, ``Default(_:)`` etc.
+- Allows to ignore all initialized properties of a type/case from decoding/encoding with ``IgnoreCodingInitialized()`` unless explicitly asked to decode/encode by attaching any coding attributes, i.e. ``CodedIn(_:)``, ``CodedAt(_:)``,
+``CodedBy(_:)``, ``Default(_:)`` etc.
 - Allows to generate protocol decoding/encoding ``HelperCoder``s with `MetaProtocolCodable` build tool plugin from ``DynamicCodable`` types.
 
 [**See the limitations for this macro**](<doc:Limitations>).
@@ -76,21 +76,15 @@ Supercharge `Swift`'s `Codable` implementations with macros.
 - ``CodedAt(_:)``
 - ``CodedIn(_:)``
 - ``Default(_:)``
-- ``Default(ifMissing:)``
-- ``Default(ifMissing:forErrors:)``
 - ``CodedBy(_:)``
 - ``CodedAs()``
 - ``CodedAs(_:_:)``
 - ``ContentAt(_:_:)``
-- ``UnTagged()``
 - ``IgnoreCoding()``
 - ``IgnoreDecoding()``
 - ``IgnoreEncoding()``
-- ``IgnoreEncoding(if:)-1iuvv``
-- ``IgnoreEncoding(if:)-7toka``
 - ``CodingKeys(_:)``
 - ``IgnoreCodingInitialized()``
-- ``Inherits(decodable:encodable:)``
 
 ### Helpers
 

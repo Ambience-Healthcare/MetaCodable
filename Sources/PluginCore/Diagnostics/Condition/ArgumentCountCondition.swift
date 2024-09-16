@@ -23,7 +23,7 @@ struct ArgumentCountCondition<Attr>: DiagnosticCondition where Attr: Attribute {
     ///
     /// - Parameter syntax: The syntax to validate.
     /// - Returns: Whether syntax passes validation.
-    func satisfied(by syntax: some SyntaxProtocol) -> Bool {
+    func satisfied(by _: some SyntaxProtocol) -> Bool {
         return expected == attr.node.arguments?
             .as(LabeledExprListSyntax.self)?.count ?? 0
     }

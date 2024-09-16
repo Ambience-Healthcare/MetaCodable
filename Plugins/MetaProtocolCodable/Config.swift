@@ -66,27 +66,21 @@ extension Config: Codable {
     /// - Parameter decoder: The decoder to read data from.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.scan =
+        scan =
             try container.decodeIfPresent(
                 ScanMode.self, forCaseInsensitiveKey: .scan
             ) ?? .target
     }
 
-    /// Returns file path as URL converting provided string.
-    ///
-    /// Uses platform and version specific API to create URL file path.
-    ///
-    /// - Parameter filePath: The path to file as string.
-    /// - Returns: The file path URL.
     static func url(forFilePath filePath: String) -> URL {
         #if canImport(Darwin)
-        if #available(macOS 13, iOS 16, macCatalyst 16, tvOS 16, watchOS 9, *) {
-            return URL(filePath: filePath)
-        } else {
-            return URL(fileURLWithPath: filePath)
-        }
+            if #available(macOS 13, iOS 16, macCatalyst 16, tvOS 16, watchOS 9, *) {
+                return URL(filePath: filePath)
+            } else {
+                return URL(fileURLWithPath: filePath)
+            }
         #else
-        return URL(fileURLWithPath: filePath)
+            return URL(fileURLWithPath: filePath)
         #endif
     }
 }
@@ -113,7 +107,7 @@ extension KeyedDecodingContainerProtocol {
         _ type: T.Type,
         forCaseInsensitiveKey key: Key
     ) throws -> T? {
-        let keys = self.allKeys.filter { eachKey in
+        let keys = allKeys.filter { eachKey in
             eachKey.stringValue.lowercased() == key.stringValue.lowercased()
         }
 
@@ -123,8 +117,8 @@ extension KeyedDecodingContainerProtocol {
                 .init(
                     codingPath: codingPath,
                     debugDescription: """
-                        Duplicate keys found, keys are case-insensitive.
-                        """
+                    Duplicate keys found, keys are case-insensitive.
+                    """
                 )
             )
         }

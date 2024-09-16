@@ -64,7 +64,7 @@ extension Codable: MemberMacro, ExtensionMacro {
     ///
     /// - Note: For types other than `class` types no declarations generated.
     package static func expansion(
-        of node: AttributeSyntax,
+        of _: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext

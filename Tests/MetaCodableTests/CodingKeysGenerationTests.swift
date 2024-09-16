@@ -1,19 +1,18 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class CodingKeysGenerationTests: XCTestCase {
-
-    func testBacktickExpression() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                let `internal`: String
-            }
-            """,
-            expandedSource:
+    final class CodingKeysGenerationTests: XCTestCase {
+        func testBacktickExpression() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    let `internal`: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let `internal`: String
@@ -39,21 +38,21 @@ final class CodingKeysGenerationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testReservedNames() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedIn("associatedtype")
-                let val1: String
-                @CodedIn("continue")
-                let val2: String
-            }
-            """,
-            expandedSource:
+        func testReservedNames() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedIn("associatedtype")
+                    let val1: String
+                    @CodedIn("continue")
+                    let val2: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let val1: String
@@ -64,8 +63,8 @@ final class CodingKeysGenerationTests: XCTestCase {
                     init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
                         let associatedtype_container = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.`associatedtype`)
-                        let continue_container = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.`continue`)
                         self.val1 = try associatedtype_container.decode(String.self, forKey: CodingKeys.val1)
+                        let continue_container = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.`continue`)
                         self.val2 = try continue_container.decode(String.self, forKey: CodingKeys.val2)
                     }
                 }
@@ -89,19 +88,19 @@ final class CodingKeysGenerationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testNamesBeginningWithNumber() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedAt("1val", "nested")
-                let val: String
-            }
-            """,
-            expandedSource:
+        func testNamesBeginningWithNumber() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedAt("1val", "nested")
+                    let val: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let val: String
@@ -130,23 +129,23 @@ final class CodingKeysGenerationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testNestedPropertiesInSameContainer() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedIn("nested")
-                let val1: String
-                @CodedIn("nested")
-                let val2: String
-                @CodedIn("nested")
-                let val3: String
-            }
-            """,
-            expandedSource:
+        func testNestedPropertiesInSameContainer() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedIn("nested")
+                    let val1: String
+                    @CodedIn("nested")
+                    let val2: String
+                    @CodedIn("nested")
+                    let val3: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let val1: String
@@ -183,7 +182,7 @@ final class CodingKeysGenerationTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

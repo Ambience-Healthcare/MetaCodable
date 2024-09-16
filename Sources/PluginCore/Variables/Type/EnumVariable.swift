@@ -6,12 +6,9 @@ import SwiftSyntaxMacros
 /// This type can be used for `enum` types for `Codable` conformance
 /// implementation.
 package struct EnumVariable: TypeVariable, DeclaredVariable {
-    /// Represents enum-case decoding/encoding expression generation callback.
     package typealias CaseCode = (
         _ name: TokenSyntax, _ variables: [any AssociatedVariable]
     ) -> ExprSyntax
-    /// Represents a enum-case and its associated decoding/encoding value.
-    typealias Case = (variable: any EnumCaseVariable, value: CaseValue)
     /// The type name of this variable.
     ///
     /// The name is read from provided declaration.
@@ -46,7 +43,7 @@ package struct EnumVariable: TypeVariable, DeclaredVariable {
     /// All the cases for this type.
     ///
     /// All the case variables along with their value generated.
-    let cases: [Case]
+    let cases: [(variable: any EnumCaseVariable, value: CaseValue)]
     /// The `CodingKeys` map containing keys
     /// and generated case names.
     let codingKeys: CodingKeysMap
@@ -75,22 +72,10 @@ package struct EnumVariable: TypeVariable, DeclaredVariable {
         let codingKeys = CodingKeysMap(typeName: "CodingKeys")
         let caseDecodeExpr: CaseCode = { name, variables in
             let args = Self.decodingArgs(representing: variables)
-            return if !args.isEmpty {
-                "self = .\(name)(\(args))"
-            } else {
-                "self = .\(name)"
-            }
+            return "self = .\(name)(\(args))"
         }
         let caseEncodeExpr: CaseCode = { name, variables in
-            let args = Self.encodingArgs(representing: variables)
-            let callee: ExprSyntax = ".\(name)"
-            let fExpr =
-                if !args.isEmpty {
-                    FunctionCallExprSyntax(callee: callee) { args }
-                } else {
-                    FunctionCallExprSyntax(calledExpression: callee) {}
-                }
-            return ExprSyntax(fExpr)
+            ".\(name)(\(Self.encodingArgs(representing: variables)))"
         }
         self.init(
             from: decl, in: context,
@@ -136,20 +121,20 @@ package struct EnumVariable: TypeVariable, DeclaredVariable {
             encodeSwitchExpr: encodeSwitchExpr, forceDefault: forceDefault,
             switcher: switcher, codingKeys: codingKeys
         ) { input in
-            return input.checkForInternalTagging(
+            input.checkForInternalTagging(
                 encodeContainer: "typeContainer", identifier: "type",
                 fallbackType: "String", codingKeys: codingKeys, context: context
             ) { registration in
-                return registration.useHelperCoderIfExists()
+                registration.useHelperCoderIfExists()
             } switcherBuilder: { registration in
-                return registration.checkForAdjacentTagging(
+                registration.checkForAdjacentTagging(
                     contentDecoder: Self.contentDecoder,
                     contentEncoder: Self.contentEncoder,
                     codingKeys: codingKeys, context: context
                 )
-            }.checkIfUnTagged(in: context)
+            }
         } caseBuilder: { input in
-            return input.checkForAlternateValue().checkCodingIgnored()
+            input.checkForAlternateValue().checkCodingIgnored()
         } propertyBuilder: { input in
             let parent = input.decl.parent
             return input.transformKeysAccordingToStrategy(attachedTo: parent)
@@ -208,21 +193,19 @@ package struct EnumVariable: TypeVariable, DeclaredVariable {
             >
         ) -> PathRegistration<AssociatedDeclSyntax, Var>
     ) {
-        self.name = decl.name.trimmed
+        name = decl.name.trimmed
         self.caseDecodeExpr = caseDecodeExpr
         self.caseEncodeExpr = caseEncodeExpr
         self.encodeSwitchExpr = encodeSwitchExpr
         self.forceDefault = forceDefault
         let reg = PathRegistration(decl: decl, key: [], variable: switcher)
-        let switcher = switcherBuilder(reg).variable
-        self.switcher = switcher
+        self.switcher = switcherBuilder(reg).variable
         self.codingKeys = codingKeys
-        self.constraintGenerator = .init(decl: decl)
+        constraintGenerator = .init(decl: decl)
         var cases: [(variable: any EnumCaseVariable, value: CaseValue)] = []
         for member in decl.codableMembers(input: self.codingKeys) {
             let variable = BasicEnumCaseVariable(
-                from: member, in: context, switcher: switcher,
-                builder: propertyBuilder
+                from: member, in: context, builder: propertyBuilder
             )
             let reg = ExprRegistration(
                 decl: member, key: [], variable: variable
@@ -264,12 +247,32 @@ package struct EnumVariable: TypeVariable, DeclaredVariable {
         if cases.contains(where: { $0.variable.decode ?? true }) {
             let switcherLoc = EnumSwitcherLocation(
                 coder: location.method.arg, container: "container",
-                keyType: codingKeys.type, selfType: selfType, selfValue: "_",
-                cases: cases, codeExpr: caseDecodeExpr,
-                hasDefaultCase: forceDefault
+                keyType: codingKeys.type, selfType: selfType, selfValue: ""
             )
+            let generated = switcher.decoding(in: context, from: switcherLoc)
+            let codingPath: ExprSyntax = "\(generated.coder).codingPath"
             code = CodeBlockItemListSyntax {
-                switcher.decoding(in: context, from: switcherLoc)
+                generated.code
+                SwitchExprSyntax(subject: generated.expr) {
+                    for (`case`, value) in cases where `case`.decode ?? true {
+                        let location = EnumCaseCodingLocation(
+                            coder: generated.coder, action: generated.action,
+                            values: value.decodeExprs, expr: caseDecodeExpr
+                        )
+                        `case`.decoding(in: context, from: location)
+                    }
+                    if generated.default || forceDefault {
+                        SwitchCaseSyntax(label: .default(.init())) {
+                            """
+                            let context = DecodingError.Context(
+                                codingPath: \(codingPath),
+                                debugDescription: "Couldn't match any cases."
+                            )
+                            """
+                            "throw DecodingError.typeMismatch(\(selfType), context)"
+                        }
+                    }
+                }
             }
         } else {
             code = CodeBlockItemListSyntax {
@@ -315,17 +318,30 @@ package struct EnumVariable: TypeVariable, DeclaredVariable {
         else { return nil }
 
         let selfType: ExprSyntax = "\(name).self"
-        let expr = encodeSwitchExpr
+        let `self` = encodeSwitchExpr
         let code: CodeBlockItemListSyntax
         if cases.contains(where: { $0.variable.encode ?? true }) {
             let switcherLocation = EnumSwitcherLocation(
                 coder: location.method.arg, container: "container",
-                keyType: codingKeys.type, selfType: selfType, selfValue: expr,
-                cases: cases, codeExpr: caseEncodeExpr,
-                hasDefaultCase: forceDefault
+                keyType: codingKeys.type, selfType: selfType, selfValue: `self`
             )
+            let generated = switcher.encoding(in: context, to: switcherLocation)
+            let allEncodable = cases.allSatisfy { $0.variable.encode ?? true }
             code = CodeBlockItemListSyntax {
-                switcher.encoding(in: context, to: switcherLocation)
+                generated.code
+                SwitchExprSyntax(subject: generated.expr) {
+                    for (`case`, value) in cases where `case`.encode ?? true {
+                        let location = EnumCaseCodingLocation(
+                            coder: generated.coder, action: generated.action,
+                            values: value.encodeExprs, expr: caseEncodeExpr
+                        )
+                        `case`.encoding(in: context, to: location)
+                    }
+                    let defaultCase = generated.default && !allEncodable
+                    if defaultCase || forceDefault {
+                        SwitchCaseSyntax(label: .default(.init())) { "break" }
+                    }
+                }
             }
         } else {
             code = ""
@@ -404,11 +420,11 @@ extension EnumVariable {
         /// Represents value expressions for case when decoding.
         var decodeExprs: [ExprSyntax] {
             switch self {
-            case .raw(let exprs):
+            case let .raw(exprs):
                 return exprs
-            case .key(let keys):
+            case let .key(keys):
                 return keys.map(\.expr)
-            case .keys(let decodeKeys, _):
+            case let .keys(decodeKeys, _):
                 return decodeKeys.map(\.expr)
             }
         }
@@ -418,11 +434,11 @@ extension EnumVariable {
         /// Represents value expressions for case when encoding.
         var encodeExprs: [ExprSyntax] {
             switch self {
-            case .raw(let exprs):
+            case let .raw(exprs):
                 return exprs
-            case .key(let keys):
+            case let .key(keys):
                 return keys.map(\.expr)
-            case .keys(_, let encodeKeys):
+            case let .keys(_, encodeKeys):
                 return encodeKeys.map(\.expr)
             }
         }
@@ -467,21 +483,8 @@ package extension EnumVariable {
         return LabeledExprListSyntax {
             for variable in variables {
                 let encode = (variable.encode ?? true)
+                let expr: ExprSyntax = encode ? "let \(variable.name)" : "_"
                 let label = variable.label?.text
-                let expr: ExprSyntaxProtocol =
-                    if encode {
-                        PatternExprSyntax(
-                            pattern: ValueBindingPatternSyntax(
-                                bindingSpecifier: .keyword(
-                                    .let, trailingTrivia: .space),
-                                pattern: IdentifierPatternSyntax(
-                                    identifier: variable.name
-                                )
-                            )
-                        )
-                    } else {
-                        "_" as ExprSyntax
-                    }
                 LabeledExprSyntax(label: label, expression: expr)
             }
         }
@@ -504,7 +507,7 @@ package extension EnumVariable {
     }
 }
 
-fileprivate extension EnumVariable {
+private extension EnumVariable {
     /// The default name for content root decoder.
     ///
     /// This decoder is passed to each case for decoding.

@@ -74,11 +74,11 @@ extension Attribute {
     /// - Returns: All the attributes of current type.
     static func attributes(attachedTo syntax: some SyntaxProtocol) -> [Self] {
         guard
-            case .choices(let choices) = DeclSyntax.structure
+            case let .choices(choices) = DeclSyntax.structure
         else { return [] }
 
         let declSyntaxChoice = choices.first { choice in
-            if case .node(let type) = choice {
+            if case let .node(type) = choice {
                 return type is AttributableDeclSyntax.Type
                     && syntax.is(type)
             } else {
@@ -88,14 +88,14 @@ extension Attribute {
 
         guard
             let declSyntaxChoice,
-            case .node(let declSyntaxType) = declSyntaxChoice,
+            case let .node(declSyntaxType) = declSyntaxChoice,
             let declaration = syntax.as(declSyntaxType),
             let declaration = declaration as? AttributableDeclSyntax
         else { return [] }
 
         return declaration.attributes.compactMap { attribute in
             guard case let .attribute(attribute) = attribute else { return nil }
-            return Self.init(from: attribute)
+            return Self(from: attribute)
         }
     }
 
@@ -123,7 +123,7 @@ extension Attribute {
         severity: DiagnosticSeverity
     ) -> MetaCodableMessage {
         return .init(
-            macro: self.node,
+            macro: node,
             message: message,
             messageID: id,
             severity: severity

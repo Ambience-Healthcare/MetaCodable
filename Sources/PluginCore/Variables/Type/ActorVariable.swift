@@ -24,7 +24,7 @@ struct ActorVariable: TypeVariable, DeclaredVariable, ComposedVariable,
     ///   - decl: The declaration to read from.
     ///   - context: The context in which the macro expansion performed.
     init(from decl: ActorDeclSyntax, in context: some MacroExpansionContext) {
-        self.base = .init(from: decl, in: context)
+        base = .init(from: decl, in: context)
     }
 
     /// Provides the syntax for encoding at the provided location.

@@ -1,22 +1,21 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import SwiftDiagnostics
-import SwiftSyntax
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+    import SwiftDiagnostics
+    import SwiftSyntax
+    import SwiftSyntaxMacrosTestSupport
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class GenericsTests: XCTestCase {
-
-    func testSingleGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct GenericCodable<T> {
-                let value: T
-            }
-            """,
-            expandedSource:
+    final class GenericsTests: XCTestCase {
+        func testSingleGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct GenericCodable<T> {
+                    let value: T
+                }
+                """,
+                expandedSource:
                 """
                 struct GenericCodable<T> {
                     let value: T
@@ -42,20 +41,20 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testMultipleGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct GenericCodable<T, U, V> {
-                let value1: T
-                let value2: U
-                let value3: V
-            }
-            """,
-            expandedSource:
+        func testMultipleGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct GenericCodable<T, U, V> {
+                    let value1: T
+                    let value2: U
+                    let value3: V
+                }
+                """,
+                expandedSource:
                 """
                 struct GenericCodable<T, U, V> {
                     let value1: T
@@ -89,20 +88,20 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumMultipleGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            enum GenericCodable<T, U, V> {
-                case one(T)
-                case two(U)
-                case three(V)
-            }
-            """,
-            expandedSource:
+        func testEnumMultipleGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                enum GenericCodable<T, U, V> {
+                    case one(T)
+                    case two(U)
+                    case three(V)
+                }
+                """,
+                expandedSource:
                 """
                 enum GenericCodable<T, U, V> {
                     case one(T)
@@ -123,16 +122,13 @@ final class GenericsTests: XCTestCase {
                         let contentDecoder = try container.superDecoder(forKey: container.allKeys.first.unsafelyUnwrapped)
                         switch container.allKeys.first.unsafelyUnwrapped {
                         case DecodingKeys.one:
-                            let _0: T
-                            _0 = try T(from: contentDecoder)
+                            let _0 = try T(from: contentDecoder)
                             self = .one(_0)
                         case DecodingKeys.two:
-                            let _0: U
-                            _0 = try U(from: contentDecoder)
+                            let _0 = try U(from: contentDecoder)
                             self = .two(_0)
                         case DecodingKeys.three:
-                            let _0: V
-                            _0 = try V(from: contentDecoder)
+                            let _0 = try V(from: contentDecoder)
                             self = .three(_0)
                         }
                     }
@@ -168,19 +164,19 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testMixedGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct GenericCodable<T> {
-                let value: T
-                let str: String
-            }
-            """,
-            expandedSource:
+        func testMixedGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct GenericCodable<T> {
+                    let value: T
+                    let str: String
+                }
+                """,
+                expandedSource:
                 """
                 struct GenericCodable<T> {
                     let value: T
@@ -210,19 +206,19 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testClassMixedGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class GenericCodable<T> {
-                let value: T
-                let str: String
-            }
-            """,
-            expandedSource:
+        func testClassMixedGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class GenericCodable<T> {
+                    let value: T
+                    let str: String
+                }
+                """,
+                expandedSource:
                 """
                 class GenericCodable<T> {
                     let value: T
@@ -252,20 +248,20 @@ final class GenericsTests: XCTestCase {
                 extension GenericCodable: Encodable where T: Encodable {
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumMixedGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            enum GenericCodable<T> {
-                @IgnoreEncoding
-                case one(T)
-                case two(String)
-            }
-            """,
-            expandedSource:
+        func testEnumMixedGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                enum GenericCodable<T> {
+                    @IgnoreEncoding
+                    case one(T)
+                    case two(String)
+                }
+                """,
+                expandedSource:
                 """
                 enum GenericCodable<T> {
                     case one(T)
@@ -285,12 +281,10 @@ final class GenericsTests: XCTestCase {
                         let contentDecoder = try container.superDecoder(forKey: container.allKeys.first.unsafelyUnwrapped)
                         switch container.allKeys.first.unsafelyUnwrapped {
                         case DecodingKeys.one:
-                            let _0: T
-                            _0 = try T(from: contentDecoder)
+                            let _0 = try T(from: contentDecoder)
                             self = .one(_0)
                         case DecodingKeys.two:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .two(_0)
                         }
                     }
@@ -319,19 +313,19 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testIgnoredGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct GenericCodable<T> {
-                var value: T { .init() }
-                let str: String
-            }
-            """,
-            expandedSource:
+        func testIgnoredGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct GenericCodable<T> {
+                    var value: T { .init() }
+                    let str: String
+                }
+                """,
+                expandedSource:
                 """
                 struct GenericCodable<T> {
                     var value: T { .init() }
@@ -358,20 +352,20 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testHelperCodedGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct GenericCodable<T> {
-                @CodedBy(TestCoder())
-                let value: T
-                let str: String
-            }
-            """,
-            expandedSource:
+        func testHelperCodedGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct GenericCodable<T> {
+                    @CodedBy(TestCoder())
+                    let value: T
+                    let str: String
+                }
+                """,
+                expandedSource:
                 """
                 struct GenericCodable<T> {
                     let value: T
@@ -401,20 +395,20 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testIgnoredEncodingGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct GenericCodable<T> {
-                @IgnoreEncoding
-                let value: T
-                let str: String
-            }
-            """,
-            expandedSource:
+        func testIgnoredEncodingGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct GenericCodable<T> {
+                    @IgnoreEncoding
+                    let value: T
+                    let str: String
+                }
+                """,
+                expandedSource:
                 """
                 struct GenericCodable<T> {
                     let value: T
@@ -443,20 +437,20 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testClassIgnoredEncodingGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class GenericCodable<T> {
-                @IgnoreEncoding
-                let value: T
-                let str: String
-            }
-            """,
-            expandedSource:
+        func testClassIgnoredEncodingGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class GenericCodable<T> {
+                    @IgnoreEncoding
+                    let value: T
+                    let str: String
+                }
+                """,
+                expandedSource:
                 """
                 class GenericCodable<T> {
                     let value: T
@@ -485,20 +479,20 @@ final class GenericsTests: XCTestCase {
                 extension GenericCodable: Encodable {
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumIgnoredEncodingGenericTypeExpansion() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            enum GenericCodable<T> {
-                @IgnoreEncoding
-                case one(T)
-                case two(String)
-            }
-            """,
-            expandedSource:
+        func testEnumIgnoredEncodingGenericTypeExpansion() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                enum GenericCodable<T> {
+                    @IgnoreEncoding
+                    case one(T)
+                    case two(String)
+                }
+                """,
+                expandedSource:
                 """
                 enum GenericCodable<T> {
                     case one(T)
@@ -518,12 +512,10 @@ final class GenericsTests: XCTestCase {
                         let contentDecoder = try container.superDecoder(forKey: container.allKeys.first.unsafelyUnwrapped)
                         switch container.allKeys.first.unsafelyUnwrapped {
                         case DecodingKeys.one:
-                            let _0: T
-                            _0 = try T(from: contentDecoder)
+                            let _0 = try T(from: contentDecoder)
                             self = .one(_0)
                         case DecodingKeys.two:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .two(_0)
                         }
                     }
@@ -552,7 +544,7 @@ final class GenericsTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

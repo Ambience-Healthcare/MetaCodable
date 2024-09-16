@@ -1,24 +1,23 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import SwiftDiagnostics
-import SwiftSyntax
-import SwiftSyntaxMacros
-import SwiftSyntaxMacroExpansion
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+    import SwiftDiagnostics
+    import SwiftSyntax
+    import SwiftSyntaxMacroExpansion
+    import SwiftSyntaxMacros
+    import SwiftSyntaxMacrosTestSupport
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class CodableTests: XCTestCase {
-
-    func testWithoutAnyCustomization() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                let value: String
-            }
-            """,
-            expandedSource:
+    final class CodableTests: XCTestCase {
+        func testWithoutAnyCustomization() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    let value: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -44,67 +43,20 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testOptionalWithoutAnyCustomization() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                let value1: String?
-                let value2: String!
-                let value3: Optional<String>
-            }
-            """,
-            expandedSource:
+        func testWithoutAnyCustomizationWithStaticVar() throws {
+            assertMacroExpansion(
                 """
+                @Codable
                 struct SomeCodable {
-                    let value1: String?
-                    let value2: String!
-                    let value3: Optional<String>
+                    let value: String
+                    static let otherValue: String
+                    public private(set) static var valueWithModifiers: String
                 }
-
-                extension SomeCodable: Decodable {
-                    init(from decoder: any Decoder) throws {
-                        let container = try decoder.container(keyedBy: CodingKeys.self)
-                        self.value1 = try container.decodeIfPresent(String.self, forKey: CodingKeys.value1)
-                        self.value2 = try container.decodeIfPresent(String.self, forKey: CodingKeys.value2)
-                        self.value3 = try container.decodeIfPresent(String.self, forKey: CodingKeys.value3)
-                    }
-                }
-
-                extension SomeCodable: Encodable {
-                    func encode(to encoder: any Encoder) throws {
-                        var container = encoder.container(keyedBy: CodingKeys.self)
-                        try container.encodeIfPresent(self.value1, forKey: CodingKeys.value1)
-                        try container.encodeIfPresent(self.value2, forKey: CodingKeys.value2)
-                        try container.encodeIfPresent(self.value3, forKey: CodingKeys.value3)
-                    }
-                }
-
-                extension SomeCodable {
-                    enum CodingKeys: String, CodingKey {
-                        case value1 = "value1"
-                        case value2 = "value2"
-                        case value3 = "value3"
-                    }
-                }
-                """
-        )
-    }
-
-    func testWithoutAnyCustomizationWithStaticVar() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                let value: String
-                static let otherValue: String
-                public private(set) static var valueWithModifiers: String
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -132,21 +84,21 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testOnlyDecodeConformance() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable: Encodable {
-                let value: String
+        func testOnlyDecodeConformance() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable: Encodable {
+                    let value: String
 
-                func encode(to encoder: any Encoder) throws {
+                    func encode(to encoder: any Encoder) throws {
+                    }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable: Encodable {
                     let value: String
@@ -168,23 +120,23 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """,
-            conformsTo: ["Decodable"]
-        )
-    }
+                conformsTo: ["Decodable"]
+            )
+        }
 
-    func testOnlyEncodeConformance() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable: Decodable {
-                let value: String
+        func testOnlyEncodeConformance() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable: Decodable {
+                    let value: String
 
-                init(from decoder: any Decoder) throws {
-                    self.value = "some"
+                    init(from decoder: any Decoder) throws {
+                        self.value = "some"
+                    }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable: Decodable {
                     let value: String
@@ -207,26 +159,26 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """,
-            conformsTo: ["Encodable"]
-        )
-    }
+                conformsTo: ["Encodable"]
+            )
+        }
 
-    func testIgnoredCodableConformance() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable: Codable {
-                let value: String
+        func testIgnoredCodableConformance() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable: Codable {
+                    let value: String
 
-                init(from decoder: any Decoder) throws {
-                    self.value = "some"
+                    init(from decoder: any Decoder) throws {
+                        self.value = "some"
+                    }
+
+                    func encode(to encoder: any Encoder) throws {
+                    }
                 }
-
-                func encode(to encoder: any Encoder) throws {
-                }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable: Codable {
                     let value: String
@@ -239,26 +191,26 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """,
-            conformsTo: []
-        )
-    }
+                conformsTo: []
+            )
+        }
 
-    func testSuperClassCodableConformance() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class SomeCodable: SuperCodable {
-                let value: String
+        func testSuperClassCodableConformance() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class SomeCodable: SuperCodable {
+                    let value: String
 
-                required init(from decoder: AnotherDecoder) throws {
-                    self.value = "some"
+                    required init(from decoder: AnotherDecoder) throws {
+                        self.value = "some"
+                    }
+
+                    func encode(to encoder: AnotherEncoder) throws {
+                    }
                 }
-
-                func encode(to encoder: AnotherEncoder) throws {
-                }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 class SomeCodable: SuperCodable {
                     let value: String
@@ -287,26 +239,26 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """,
-            conformsTo: []
-        )
-    }
+                conformsTo: []
+            )
+        }
 
-    func testClassIgnoredCodableConformance() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class SomeCodable: Codable {
-                let value: String
+        func testClassIgnoredCodableConformance() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class SomeCodable: Codable {
+                    let value: String
 
-                required init(from decoder: any Decoder) throws {
-                    self.value = "some"
+                    required init(from decoder: any Decoder) throws {
+                        self.value = "some"
+                    }
+
+                    func encode(to encoder: any Encoder) throws {
+                    }
                 }
-
-                func encode(to encoder: any Encoder) throws {
-                }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 class SomeCodable: Codable {
                     let value: String
@@ -319,26 +271,26 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """,
-            conformsTo: []
-        )
-    }
+                conformsTo: []
+            )
+        }
 
-    func testClassIgnoredCodableConformanceWithoutAny() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class SomeCodable: Codable {
-                let value: String
+        func testClassIgnoredCodableConformanceWithoutAny() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class SomeCodable: Codable {
+                    let value: String
 
-                required init(from decoder: Decoder) throws {
-                    self.value = "some"
+                    required init(from decoder: Decoder) throws {
+                        self.value = "some"
+                    }
+
+                    func encode(to encoder: Encoder) throws {
+                    }
                 }
-
-                func encode(to encoder: Encoder) throws {
-                }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 class SomeCodable: Codable {
                     let value: String
@@ -351,96 +303,86 @@ final class CodableTests: XCTestCase {
                     }
                 }
                 """,
-            conformsTo: []
-        )
-    }
-}
-
-#if canImport(MacroPlugin)
-@testable import MacroPlugin
-
-let allMacros: [String: Macro.Type] = [
-    "CodedAt": MacroPlugin.CodedAt.self,
-    "CodedIn": MacroPlugin.CodedIn.self,
-    "Default": MacroPlugin.Default.self,
-    "CodedBy": MacroPlugin.CodedBy.self,
-    "CodedAs": MacroPlugin.CodedAs.self,
-    "ContentAt": MacroPlugin.ContentAt.self,
-    "IgnoreCoding": MacroPlugin.IgnoreCoding.self,
-    "IgnoreDecoding": MacroPlugin.IgnoreDecoding.self,
-    "IgnoreEncoding": MacroPlugin.IgnoreEncoding.self,
-    "Codable": MacroPlugin.Codable.self,
-    "MemberInit": MacroPlugin.MemberInit.self,
-    "CodingKeys": MacroPlugin.CodingKeys.self,
-    "IgnoreCodingInitialized": MacroPlugin.IgnoreCodingInitialized.self,
-    "Inherits": MacroPlugin.Inherits.self,
-    "UnTagged": MacroPlugin.UnTagged.self,
-]
-#else
-let allMacros: [String: Macro.Type] = [
-    "CodedAt": CodedAt.self,
-    "CodedIn": CodedIn.self,
-    "Default": Default.self,
-    "CodedBy": CodedBy.self,
-    "CodedAs": CodedAs.self,
-    "ContentAt": ContentAt.self,
-    "IgnoreCoding": IgnoreCoding.self,
-    "IgnoreDecoding": IgnoreDecoding.self,
-    "IgnoreEncoding": IgnoreEncoding.self,
-    "Codable": Codable.self,
-    "MemberInit": MemberInit.self,
-    "CodingKeys": CodingKeys.self,
-    "IgnoreCodingInitialized": IgnoreCodingInitialized.self,
-    "Inherits": Inherits.self,
-    "UnTagged": UnTagged.self,
-]
-#endif
-
-func assertMacroExpansion(
-    _ originalSource: String,
-    expandedSource: String,
-    diagnostics: [DiagnosticSpec] = [],
-    conformsTo conformances: [TypeSyntax] = ["Decodable", "Encodable"],
-    testModuleName: String = "TestModule",
-    testFileName: String = "test.swift",
-    indentationWidth: Trivia = .spaces(4),
-    file: StaticString = #file,
-    line: UInt = #line
-) {
-    assertMacroExpansion(
-        originalSource, expandedSource: expandedSource,
-        diagnostics: diagnostics,
-        macroSpecs: allMacros.mapValues { value in
-            return MacroSpec(type: value, conformances: conformances)
-        },
-        testModuleName: testModuleName, testFileName: testFileName,
-        indentationWidth: indentationWidth,
-        file: file, line: line
-    )
-}
-
-extension Attribute {
-    static var misuseID: MessageID {
-        return Self.init(
-            from: .init(
-                attributeName: IdentifierTypeSyntax(
-                    name: .identifier(Self.name)
-                )
+                conformsTo: []
             )
-        )!.misuseMessageID
+        }
     }
-}
 
-extension DiagnosticSpec {
-    static func multiBinding(line: Int, column: Int) -> Self {
-        return .init(
-            id: MessageID(
-                domain: "SwiftSyntaxMacroExpansion",
-                id: "peerMacroOnVariableWithMultipleBindings"
-            ),
-            message: "peer macro can only be applied to a single variable",
-            line: line, column: column
+    #if canImport(MacroPlugin)
+        @testable import MacroPlugin
+
+        let allMacros: [String: Macro.Type] = [
+            "CodedAt": MacroPlugin.CodedAt.self,
+            "CodedIn": MacroPlugin.CodedIn.self,
+            "Default": MacroPlugin.Default.self,
+            "CodedBy": MacroPlugin.CodedBy.self,
+            "CodedAs": MacroPlugin.CodedAs.self,
+            "ContentAt": MacroPlugin.ContentAt.self,
+            "IgnoreCoding": MacroPlugin.IgnoreCoding.self,
+            "IgnoreDecoding": MacroPlugin.IgnoreDecoding.self,
+            "IgnoreEncoding": MacroPlugin.IgnoreEncoding.self,
+            "Codable": MacroPlugin.Codable.self,
+            "MemberInit": MacroPlugin.MemberInit.self,
+            "CodingKeys": MacroPlugin.CodingKeys.self,
+            "IgnoreCodingInitialized": MacroPlugin.IgnoreCodingInitialized.self,
+        ]
+    #else
+        let allMacros: [String: Macro.Type] = [
+            "CodedAt": CodedAt.self,
+            "CodedIn": CodedIn.self,
+            "Default": Default.self,
+            "CodedBy": CodedBy.self,
+            "CodedAs": CodedAs.self,
+            "ContentAt": ContentAt.self,
+            "IgnoreCoding": IgnoreCoding.self,
+            "IgnoreDecoding": IgnoreDecoding.self,
+            "IgnoreEncoding": IgnoreEncoding.self,
+            "Codable": Codable.self,
+            "MemberInit": MemberInit.self,
+            "CodingKeys": CodingKeys.self,
+            "IgnoreCodingInitialized": IgnoreCodingInitialized.self,
+        ]
+    #endif
+
+    func assertMacroExpansion(
+        _ originalSource: String,
+        expandedSource: String,
+        diagnostics: [DiagnosticSpec] = [],
+        conformsTo conformances: [TypeSyntax] = ["Decodable", "Encodable"],
+        testModuleName: String = "TestModule",
+        testFileName: String = "test.swift",
+        indentationWidth: Trivia = .spaces(4),
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        assertMacroExpansion(
+            originalSource, expandedSource: expandedSource,
+            diagnostics: diagnostics,
+            macroSpecs: allMacros.mapValues { value in
+                MacroSpec(type: value, conformances: conformances)
+            },
+            testModuleName: testModuleName, testFileName: testFileName,
+            indentationWidth: indentationWidth,
+            file: file, line: line
         )
     }
-}
+
+    extension Attribute {
+        static var misuseID: MessageID {
+            return Self(from: .init(stringLiteral: name))!.misuseMessageID
+        }
+    }
+
+    extension DiagnosticSpec {
+        static func multiBinding(line: Int, column: Int) -> Self {
+            return .init(
+                id: MessageID(
+                    domain: "SwiftSyntaxMacroExpansion",
+                    id: "peerMacroOnVariableWithMultipleBindings"
+                ),
+                message: "peer macro can only be applied to a single variable",
+                line: line, column: column
+            )
+        }
+    }
 #endif

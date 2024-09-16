@@ -27,12 +27,12 @@ extension MemberGroupSyntax where ChildSyntaxInput == Void {
     ///
     /// - Returns: All the individual members syntax of current syntax.
     func codableMembers() -> [MemberSyntax] {
-        return self.codableMembers(input: ())
+        return codableMembers(input: ())
     }
 }
 
 extension MemberGroupSyntax
-where
+    where
     Self: MemberGroupSyntax, Self: DeclGroupSyntax,
     MemberSyntax == PropertyDeclSyntax, ChildSyntaxInput == Void
 {
@@ -43,8 +43,8 @@ where
     ///
     /// - Parameter input: The input to child syntax.
     /// - Returns: All the member properties.
-    func codableMembers(input: Void) -> [PropertyDeclSyntax] {
-        return self.memberBlock.members.flatMap { member in
+    func codableMembers(input _: Void) -> [PropertyDeclSyntax] {
+        return memberBlock.members.flatMap { member in
             guard
                 // is a variable declaration
                 let decl = member.decl.as(VariableDeclSyntax.self),
@@ -56,7 +56,8 @@ where
 
             var variablesData = [(PatternBindingSyntax, TypeSyntax?)]()
             for binding in decl.bindings
-            where binding.pattern.is(IdentifierPatternSyntax.self) {
+                where binding.pattern.is(IdentifierPatternSyntax.self)
+            {
                 let data = (binding, binding.typeAnnotation?.type.trimmed)
                 variablesData.append(data)
             }
@@ -116,13 +117,13 @@ extension EnumDeclSyntax: MemberGroupSyntax, VariableSyntax {
     /// - Parameter input: The input to child syntax.
     /// - Returns: All the individual members syntax of current syntax.
     func codableMembers(input: CodingKeysMap) -> [EnumCaseVariableDeclSyntax] {
-        return self.memberBlock.members.flatMap { member in
+        return memberBlock.members.flatMap { member in
             guard
                 // is a case declaration
                 let decl = member.decl.as(EnumCaseDeclSyntax.self)
             else { return [] as [EnumCaseVariableDeclSyntax] }
             return decl.elements.map { element in
-                return .init(
+                .init(
                     element: element, decl: decl,
                     parent: self, codingKeys: input
                 )

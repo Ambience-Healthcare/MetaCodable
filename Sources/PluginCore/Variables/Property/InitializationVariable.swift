@@ -7,7 +7,7 @@ import SwiftSyntaxMacros
 /// encoding implementations, while customizing decoding and initialization
 /// implementations.
 struct InitializationVariable<Wrapped>: ComposedVariable, PropertyVariable
-where
+    where
     Wrapped: PropertyVariable,
     Wrapped.Initialization: RequiredVariableInitialization
 {
@@ -61,6 +61,7 @@ where
     var requireDecodable: Bool? {
         return options.`init` ? base.requireDecodable : false
     }
+
     /// Whether the variable type requires `Encodable` conformance.
     ///
     /// Provides whether underlying variable type requires
@@ -122,7 +123,7 @@ where
 }
 
 extension Registration
-where
+    where
     Decl == PropertyDeclSyntax, Var: PropertyVariable & InitializableVariable,
     Var.Initialization: RequiredVariableInitialization
 {
@@ -137,12 +138,12 @@ where
     /// - Returns: Newly built registration with initialization data.
     func checkCanBeInitialized() -> Registration<Decl, Key, InitOutput> {
         typealias Output = InitOutput
-        let initialized = self.variable.value != nil
+        let initialized = variable.value != nil
         let canInit =
-            switch self.decl.accessorBlock?.accessors {
+            switch decl.accessorBlock?.accessors {
             case .getter:
                 false
-            case .accessors(let accessors):
+            case let .accessors(accessors):
                 !accessors.contains { decl in
                     decl.accessorSpecifier.tokenKind == .keyword(.get)
                 }
@@ -152,12 +153,12 @@ where
             //     decl.accessorKind.tokenKind == .keyword(.`init`)
             // }
             default:
-                self.decl.bindingSpecifier.tokenKind == .keyword(.var)
+                decl.bindingSpecifier.tokenKind == .keyword(.var)
                     || !initialized
             }
 
         let options = Output.Options(init: canInit, initialized: initialized)
-        let newVariable = Output(base: self.variable, options: options)
-        return self.updating(with: newVariable)
+        let newVariable = Output(base: variable, options: options)
+        return updating(with: newVariable)
     }
 }

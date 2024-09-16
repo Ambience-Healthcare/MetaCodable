@@ -1,5 +1,6 @@
 extension DynamicCodableIdentifier: ExpressibleByUnicodeScalarLiteral
-where Value: ExpressibleByUnicodeScalarLiteral {
+    where Value: ExpressibleByUnicodeScalarLiteral
+{
     /// Creates an instance initialized to the given value.
     ///
     /// Creates single identifier with the given value.
@@ -11,7 +12,8 @@ where Value: ExpressibleByUnicodeScalarLiteral {
 }
 
 extension DynamicCodableIdentifier: ExpressibleByExtendedGraphemeClusterLiteral
-where Value: ExpressibleByExtendedGraphemeClusterLiteral {
+    where Value: ExpressibleByExtendedGraphemeClusterLiteral
+{
     /// Creates an instance initialized to the given value.
     ///
     /// Creates single identifier with the given value.
@@ -26,7 +28,8 @@ where Value: ExpressibleByExtendedGraphemeClusterLiteral {
 }
 
 extension DynamicCodableIdentifier: ExpressibleByStringLiteral
-where Value: ExpressibleByStringLiteral {
+    where Value: ExpressibleByStringLiteral
+{
     /// Creates an instance initialized to the given string value.
     ///
     /// Creates single identifier with the given value.
@@ -38,7 +41,8 @@ where Value: ExpressibleByStringLiteral {
 }
 
 extension DynamicCodableIdentifier: ExpressibleByIntegerLiteral
-where Value: ExpressibleByIntegerLiteral {
+    where Value: ExpressibleByIntegerLiteral
+{
     /// Creates an instance initialized to the specified integer value.
     ///
     /// Creates single identifier with the specified value.
@@ -50,7 +54,8 @@ where Value: ExpressibleByIntegerLiteral {
 }
 
 extension DynamicCodableIdentifier: ExpressibleByFloatLiteral
-where Value: ExpressibleByFloatLiteral {
+    where Value: ExpressibleByFloatLiteral
+{
     /// Creates an instance initialized to the specified floating-point value.
     ///
     /// Creates single identifier with the specified value.
@@ -69,17 +74,5 @@ extension DynamicCodableIdentifier: ExpressibleByArrayLiteral {
     /// - Parameter elements: The elements to contain.
     public init(arrayLiteral elements: Value...) {
         self = .many(elements)
-    }
-}
-
-extension DynamicCodableIdentifier: ExpressibleByNilLiteral
-where Value: ExpressibleByNilLiteral {
-    /// Creates an instance initialized with `nil`.
-    ///
-    /// Creates single identifier with the specified `nil` literal.
-    ///
-    /// - Parameter value: The `nil` value to assign.
-    public init(nilLiteral: ()) {
-        self = .one(.init(nilLiteral: nilLiteral))
     }
 }

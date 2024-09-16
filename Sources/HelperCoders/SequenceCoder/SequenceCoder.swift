@@ -9,7 +9,7 @@ import MetaCodable
 /// `HelperCoder`, if on configuration based.
 /// decoding/encoding needed
 public struct SequenceCoder<Sequence, ElementHelper>: HelperCoder
-where
+    where
     Sequence: SequenceInitializable, ElementHelper: HelperCoder,
     Sequence.Element == ElementHelper.Coded
 {
@@ -31,7 +31,7 @@ where
     ///   - elementHelper: The `HelperCoder` for element.
     ///   - configuration: The configuration for decoding and encoding.
     public init(
-        output: Sequence.Type, elementHelper: ElementHelper,
+        output _: Sequence.Type, elementHelper: ElementHelper,
         configuration: Configuration = .init()
     ) {
         self.elementHelper = elementHelper
@@ -80,7 +80,8 @@ where
     ///   - output: The resulting sequence type.
     ///   - configuration: The configuration for decoding and encoding.
     public init(configuration: Configuration)
-    where ElementHelper == DefaultSequenceElementCoding<Sequence.Element> {
+        where ElementHelper == DefaultSequenceElementCoding<Sequence.Element>
+    {
         self.init(
             output: Sequence.self, elementHelper: .init(),
             configuration: configuration
@@ -96,7 +97,7 @@ where
     ///   - configuration: The configuration for decoding and encoding.
     public init(
         elementHelper: ElementHelper, configuration: Configuration = .init()
-    ) where Sequence == Array<ElementHelper.Coded> {
+    ) where Sequence == [ElementHelper.Coded] {
         self.init(
             output: Sequence.self, elementHelper: elementHelper,
             configuration: configuration

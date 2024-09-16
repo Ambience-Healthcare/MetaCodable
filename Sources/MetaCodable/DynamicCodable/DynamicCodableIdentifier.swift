@@ -30,9 +30,9 @@ public enum DynamicCodableIdentifier<Value: Equatable> {
     /// - Returns: Whether identifier value is equivalent.
     public static func ~= (left: Self, right: Value) -> Bool {
         return switch left {
-        case .one(let value):
+        case let .one(value):
             value == right
-        case .many(let values):
+        case let .many(values):
             values.contains(right)
         }
     }
@@ -75,9 +75,9 @@ extension DynamicCodableIdentifier: Encodable where Value: Encodable {
     /// - Throws: If encoding identifier value throws.
     public func encode(to encoder: Encoder) throws {
         switch self {
-        case .one(let value):
+        case let .one(value):
             try value.encode(to: encoder)
-        case .many(let values):
+        case let .many(values):
             guard let value = values.first else { return }
             try value.encode(to: encoder)
         }

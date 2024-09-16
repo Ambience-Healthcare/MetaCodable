@@ -35,7 +35,7 @@ struct Registration<Decl, Key, Var: Variable> {
     ) where Decl: VariableSyntax, Decl.Variable == Var {
         self.key = key
         self.decl = decl
-        self.variable = decl.codableVariable(in: context)
+        variable = decl.codableVariable(in: context)
     }
 
     /// Creates a new registration with provided parameters.
@@ -82,11 +82,11 @@ struct Registration<Decl, Key, Var: Variable> {
 /// This type contains variable and `CodingKey` path data that is necessary
 /// for syntax generation.
 typealias PathRegistration<Decl, Var> = Registration<Decl, [String], Var>
-where Var: Variable
+    where Var: Variable
 
 /// A type representing enum case variable registration for code generation.
 ///
 /// This type contains variable and `CodingKey` value data that is necessary
 /// for syntax generation.
 typealias ExprRegistration<Decl, Var> = Registration<Decl, [ExprSyntax], Var>
-where Var: Variable
+    where Var: Variable

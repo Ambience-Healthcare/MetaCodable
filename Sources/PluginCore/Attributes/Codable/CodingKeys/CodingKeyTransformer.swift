@@ -45,7 +45,7 @@ struct CodingKeyTransformer {
     }
 }
 
-fileprivate extension CodingKeys.Strategy {
+private extension CodingKeys.Strategy {
     /// The separator being used by current case style.
     ///
     /// There might not be any separator for current case style,
@@ -63,7 +63,7 @@ fileprivate extension CodingKeys.Strategy {
     }
 }
 
-fileprivate extension CodingKeys.Strategy {
+private extension CodingKeys.Strategy {
     /// Represents capitalization style
     /// of each token in a casing style.
     ///

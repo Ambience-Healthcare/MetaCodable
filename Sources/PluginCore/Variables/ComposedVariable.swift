@@ -10,7 +10,8 @@ import SwiftSyntaxMacros
 /// This variable adds customization on top of underlying
 /// wrapped variable's implementation.
 protocol ComposedVariable<Wrapped>: Variable
-where CodingLocation == Wrapped.CodingLocation, Generated == Wrapped.Generated {
+    where CodingLocation == Wrapped.CodingLocation, Generated == Wrapped.Generated
+{
     /// A type representing the underlying
     /// wrapped variable.
     ///
@@ -80,7 +81,8 @@ extension ComposedVariable where Self: ValuedVariable, Wrapped: ValuedVariable {
 }
 
 extension ComposedVariable
-where Self: ConditionalVariable, Wrapped: ConditionalVariable {
+    where Self: ConditionalVariable, Wrapped: ConditionalVariable
+{
     /// Whether the variable is to be decoded.
     ///
     /// Whether underlying wrapped variable is to be decoded.
@@ -89,17 +91,11 @@ where Self: ConditionalVariable, Wrapped: ConditionalVariable {
     ///
     /// Whether underlying wrapped variable is to be encoded.
     var encode: Bool? { base.encode }
-
-    /// The arguments passed to encoding condition.
-    ///
-    /// Provides arguments of underlying variable value.
-    var conditionArguments: LabeledExprListSyntax {
-        return base.conditionArguments
-    }
 }
 
 extension ComposedVariable
-where Self: PropertyVariable, Wrapped: PropertyVariable {
+    where Self: PropertyVariable, Wrapped: PropertyVariable
+{
     /// The type of the variable.
     ///
     /// Provides type of the underlying variable value.
@@ -133,7 +129,7 @@ where Self: PropertyVariable, Wrapped: PropertyVariable {
 }
 
 extension ComposedVariable
-where
+    where
     Self: InitializableVariable, Wrapped: InitializableVariable,
     Initialization == Wrapped.Initialization
 {
@@ -145,13 +141,15 @@ where
     ///                      the macro expansion.
     /// - Returns: The type of initialization for variable.
     func initializing(in context: some MacroExpansionContext) -> Initialization
-    where Initialization == Wrapped.Initialization {
+        where Initialization == Wrapped.Initialization
+    {
         return base.initializing(in: context)
     }
 }
 
 extension ComposedVariable
-where Self: AssociatedVariable, Wrapped: AssociatedVariable {
+    where Self: AssociatedVariable, Wrapped: AssociatedVariable
+{
     /// The label of the variable.
     ///
     /// Provides label of the underlying variable value.
@@ -159,7 +157,8 @@ where Self: AssociatedVariable, Wrapped: AssociatedVariable {
 }
 
 extension ComposedVariable
-where Self: EnumCaseVariable, Wrapped: EnumCaseVariable {
+    where Self: EnumCaseVariable, Wrapped: EnumCaseVariable
+{
     /// All the associated variables for this case.
     ///
     /// Provides associated variables of the underlying variable value.

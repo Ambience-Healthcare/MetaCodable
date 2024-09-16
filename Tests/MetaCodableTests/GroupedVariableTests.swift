@@ -1,19 +1,19 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class GroupedVariableTests: XCTestCase {
-    func testWithoutAnyCustomization() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let one, two, three: String
-            }
-            """,
-            expandedSource:
+    final class GroupedVariableTests: XCTestCase {
+        func testWithoutAnyCustomization() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let one, two, three: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one, two, three: String
@@ -51,19 +51,19 @@ final class GroupedVariableTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithSomeInitializedWithExplicitTyping() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let one, two: String, three: String = ""
-            }
-            """,
-            expandedSource:
+        func testWithSomeInitializedWithExplicitTyping() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let one, two: String, three: String = ""
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one, two: String, three: String = ""
@@ -99,57 +99,57 @@ final class GroupedVariableTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    // func testWithSomeInitializedWithoutExplicitTyping() throws {
-    //     XCTExpectFailure("Requires explicit type declaration")
-    //     assertMacroExpansion(
-    //         """
-    //         @Codable
-    //         struct SomeCodable {
-    //             let one, two: String, three = ""
-    //         }
-    //         """,
-    //         expandedSource:
-    //             """
-    //             struct SomeCodable {
-    //                 let one, two: String, three = ""
-    //                 init(one: String, two: String) {
-    //                     self.one = one
-    //                     self.two = two
-    //                 }
-    //                 init(from decoder: any Decoder) throws {
-    //                     let container = try decoder.container(keyedBy: CodingKeys.self)
-    //                     self.one = try container.decode(String.self, forKey: CodingKeys.one)
-    //                     self.two = try container.decode(String.self, forKey: CodingKeys.two)
-    //                 }
-    //                 func encode(to encoder: any Encoder) throws {
-    //                     var container = encoder.container(keyedBy: CodingKeys.self)
-    //                     try container.encode(self.one, forKey: CodingKeys.one)
-    //                     try container.encode(self.two, forKey: CodingKeys.two)
-    //                 }
-    //                 enum CodingKeys: String, CodingKey {
-    //                     case one = "one"
-    //                     case two = "two"
-    //                 }
-    //             }
-    //             extension SomeCodable: Codable {
-    //             }
-    //             """
-    //     )
-    // }
+        // func testWithSomeInitializedWithoutExplicitTyping() throws {
+        //     XCTExpectFailure("Requires explicit type declaration")
+        //     assertMacroExpansion(
+        //         """
+        //         @Codable
+        //         struct SomeCodable {
+        //             let one, two: String, three = ""
+        //         }
+        //         """,
+        //         expandedSource:
+        //             """
+        //             struct SomeCodable {
+        //                 let one, two: String, three = ""
+        //                 init(one: String, two: String) {
+        //                     self.one = one
+        //                     self.two = two
+        //                 }
+        //                 init(from decoder: any Decoder) throws {
+        //                     let container = try decoder.container(keyedBy: CodingKeys.self)
+        //                     self.one = try container.decode(String.self, forKey: CodingKeys.one)
+        //                     self.two = try container.decode(String.self, forKey: CodingKeys.two)
+        //                 }
+        //                 func encode(to encoder: any Encoder) throws {
+        //                     var container = encoder.container(keyedBy: CodingKeys.self)
+        //                     try container.encode(self.one, forKey: CodingKeys.one)
+        //                     try container.encode(self.two, forKey: CodingKeys.two)
+        //                 }
+        //                 enum CodingKeys: String, CodingKey {
+        //                     case one = "one"
+        //                     case two = "two"
+        //                 }
+        //             }
+        //             extension SomeCodable: Codable {
+        //             }
+        //             """
+        //     )
+        // }
 
-    func testMixedTypes() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let one, two: String, three: Int
-            }
-            """,
-            expandedSource:
+        func testMixedTypes() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let one, two: String, three: Int
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one, two: String, three: Int
@@ -187,19 +187,19 @@ final class GroupedVariableTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testMixedTypesWithSomeInitializedWithExplicitTyping() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let one: String, two: String = "", three: Int
-            }
-            """,
-            expandedSource:
+        func testMixedTypesWithSomeInitializedWithExplicitTyping() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let one: String, two: String = "", three: Int
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one: String, two: String = "", three: Int
@@ -235,19 +235,19 @@ final class GroupedVariableTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testMixedTypesWithSomeInitializedWithoutExplicitTyping() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let one: String, two = "", three: Int
-            }
-            """,
-            expandedSource:
+        func testMixedTypesWithSomeInitializedWithoutExplicitTyping() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let one: String, two = "", three: Int
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one: String, two = "", three: Int
@@ -283,7 +283,7 @@ final class GroupedVariableTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

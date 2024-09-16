@@ -1,4 +1,4 @@
-extension SequenceCoder {
+public extension SequenceCoder {
     /// The additional customization data for ``SequenceCoder``.
     ///
     /// Can be used to provide additional error handling etc. for
@@ -6,7 +6,7 @@ extension SequenceCoder {
     ///
     /// Exposed options, i.e. ``lossy-swift.type.property``, ``default(_:)``
     /// etc. can be combined to provide configurations from each option.
-    public struct Configuration {
+    struct Configuration {
         /// Whether sequence decoded in a lossy manner.
         ///
         /// Invalid element data from sequence will be ignored
@@ -60,6 +60,7 @@ extension SequenceCoder.Configuration: OptionSet {
     public static func `default`(_ value: Sequence) -> Self {
         return [.defaultWhenInvalid(value), .defaultWhenEmpty(value)]
     }
+
     /// Configuration with default value when invalid data type encountered.
     ///
     /// Only default data to be used when invalid type provided, lossy decoding
@@ -70,6 +71,7 @@ extension SequenceCoder.Configuration: OptionSet {
     public static func defaultWhenInvalid(_ value: Sequence) -> Self {
         return .init(lossy: false, invalidDefault: value, emptyDefault: nil)
     }
+
     /// Configuration with default value when empty data encountered.
     ///
     /// Only default data to be used when empty provided, lossy decoding

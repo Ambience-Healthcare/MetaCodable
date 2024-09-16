@@ -1,26 +1,25 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import SwiftDiagnostics
-import XCTest
+    import SwiftDiagnostics
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class CodedAsEnumTests: XCTestCase {
+    final class CodedAsEnumTests: XCTestCase {
+        func testMisuseOnNonCaseDeclaration() throws {
+            assertMacroExpansion(
+                """
+                enum SomeEnum {
+                    case bool(_ variable: Bool)
+                    case int(val: Int)
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
 
-    func testMisuseOnNonCaseDeclaration() throws {
-        assertMacroExpansion(
-            """
-            enum SomeEnum {
-                case bool(_ variable: Bool)
-                case int(val: Int)
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-
-                @CodedAs("test")
-                func someFunc() {
+                    @CodedAs("test")
+                    func someFunc() {
+                    }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variable: Bool)
@@ -31,33 +30,33 @@ final class CodedAsEnumTests: XCTestCase {
                     }
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs only applicable to enum-case or variable declarations",
-                    line: 7, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                )
-            ]
-        )
-    }
+                        line: 7, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testDuplicatedMisuse() throws {
-        assertMacroExpansion(
-            """
-            enum SomeEnum {
-                @CodedAs("bool1")
-                @CodedAs("bool2")
-                case bool(_ variable: Bool)
-                case int(val: Int)
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-            }
-            """,
-            expandedSource:
+        func testDuplicatedMisuse() throws {
+            assertMacroExpansion(
+                """
+                enum SomeEnum {
+                    @CodedAs("bool1")
+                    @CodedAs("bool2")
+                    case bool(_ variable: Bool)
+                    case int(val: Int)
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variable: Bool)
@@ -66,42 +65,42 @@ final class CodedAsEnumTests: XCTestCase {
                     case multi(_ variable: Bool, val: Int, String)
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can only be applied once per declaration",
-                    line: 2, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                        line: 2, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can only be applied once per declaration",
-                    line: 3, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 3, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testMisuseInCombinationWithIgnoreCodingMacro() throws {
-        assertMacroExpansion(
-            """
-            enum SomeEnum {
-                @IgnoreCoding
-                @CodedAs("bool2")
-                case bool(_ variable: Bool)
-                case int(val: Int)
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-            }
-            """,
-            expandedSource:
+        func testMisuseInCombinationWithIgnoreCodingMacro() throws {
+            assertMacroExpansion(
+                """
+                enum SomeEnum {
+                    @IgnoreCoding
+                    @CodedAs("bool2")
+                    case bool(_ variable: Bool)
+                    case int(val: Int)
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variable: Bool)
@@ -110,90 +109,90 @@ final class CodedAsEnumTests: XCTestCase {
                     case multi(_ variable: Bool, val: Int, String)
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: IgnoreCoding.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: IgnoreCoding.misuseID,
+                        message:
                         "@IgnoreCoding can't be used in combination with @CodedAs",
-                    line: 2, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @IgnoreCoding attribute")
-                    ]
-                ),
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                        line: 2, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @IgnoreCoding attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can't be used in combination with @IgnoreCoding",
-                    line: 3, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 3, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testMisuseOnNonEnumDeclaration() throws {
-        assertMacroExpansion(
-            """
-            @CodedAs<Int>
-            struct SomeSomeCodable {
-                let value: String
-            }
-            """,
-            expandedSource:
+        func testMisuseOnNonEnumDeclaration() throws {
+            assertMacroExpansion(
+                """
+                @CodedAs<Int>
+                struct SomeSomeCodable {
+                    let value: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeSomeCodable {
                     let value: String
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs only applicable to enum or protocol declarations",
-                    line: 1, column: 1,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                        line: 1, column: 1,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs must be used in combination with @Codable",
-                    line: 1, column: 1,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                        line: 1, column: 1,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs must be used in combination with @CodedAt",
-                    line: 1, column: 1,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 1, column: 1,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testMisuseInCombinationWithCodedByMacro() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodedAt("type")
-            @CodedAs<Int>
-            @CodedBy(LossySequenceCoder<[Int]>())
-            enum Command {
-                @CodedAs(1)
-                case load(key: String)
-                @CodedAs(2)
-                case store(key: String, value: Int)
-            }
-            """,
-            expandedSource:
+        func testMisuseInCombinationWithCodedByMacro() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodedAt("type")
+                @CodedAs<Int>
+                @CodedBy(LossySequenceCoder<[Int]>())
+                enum Command {
+                    @CodedAs(1)
+                    case load(key: String)
+                    @CodedAs(2)
+                    case store(key: String, value: Int)
+                }
+                """,
+                expandedSource:
                 """
                 enum Command {
                     case load(key: String)
@@ -202,21 +201,17 @@ final class CodedAsEnumTests: XCTestCase {
 
                 extension Command: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let type: Int
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        type = try LossySequenceCoder<[Int]>().decode(from: container, forKey: CodingKeys.type)
+                        let type = try LossySequenceCoder<[Int]>().decode(from: container, forKey: CodingKeys.type)
                         switch type {
                         case 1:
-                            let key: String
                             let container = try decoder.container(keyedBy: CodingKeys.self)
-                            key = try container.decode(String.self, forKey: CodingKeys.key)
+                            let key = try container.decode(String.self, forKey: CodingKeys.key)
                             self = .load(key: key)
                         case 2:
-                            let key: String
-                            let value: Int
                             let container = try decoder.container(keyedBy: CodingKeys.self)
-                            key = try container.decode(String.self, forKey: CodingKeys.key)
-                            value = try container.decode(Int.self, forKey: CodingKeys.value)
+                            let key = try container.decode(String.self, forKey: CodingKeys.key)
+                            let value = try container.decode(Int.self, forKey: CodingKeys.value)
                             self = .store(key: key, value: value)
                         default:
                             let context = DecodingError.Context(
@@ -237,7 +232,7 @@ final class CodedAsEnumTests: XCTestCase {
                             try LossySequenceCoder<[Int]>().encode(1, to: &typeContainer, atKey: CodingKeys.type)
                             var container = encoder.container(keyedBy: CodingKeys.self)
                             try container.encode(key, forKey: CodingKeys.key)
-                        case .store(key: let key, value: let value):
+                        case .store(key: let key,value: let value):
                             try LossySequenceCoder<[Int]>().encode(2, to: &typeContainer, atKey: CodingKeys.type)
                             var container = encoder.container(keyedBy: CodingKeys.self)
                             try container.encode(key, forKey: CodingKeys.key)
@@ -254,44 +249,44 @@ final class CodedAsEnumTests: XCTestCase {
                     }
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can't be used in combination with @CodedBy",
-                    line: 3, column: 1,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-                .init(
-                    id: CodedBy.misuseID,
-                    message:
+                        line: 3, column: 1,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: CodedBy.misuseID,
+                        message:
                         "@CodedBy can't be used in combination with @CodedAs",
-                    line: 4, column: 1,
-                    fixIts: [
-                        .init(message: "Remove @CodedBy attribute")
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 4, column: 1,
+                        fixIts: [
+                            .init(message: "Remove @CodedBy attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testExternallyTaggedCustomValue() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            enum SomeEnum {
-                case bool(_ variable: Bool)
-                @CodedAs("altInt")
-                case int(val: Int)
-                @CodedAs("altDouble1", "altDouble2")
-                case double(_: Double)
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-            }
-            """,
-            expandedSource:
+        func testExternallyTaggedCustomValue() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                enum SomeEnum {
+                    case bool(_ variable: Bool)
+                    @CodedAs("altInt")
+                    case int(val: Int)
+                    @CodedAs("altDouble1", "altDouble2")
+                    case double(_: Double)
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variable: Bool)
@@ -314,31 +309,24 @@ final class CodedAsEnumTests: XCTestCase {
                         let contentDecoder = try container.superDecoder(forKey: container.allKeys.first.unsafelyUnwrapped)
                         switch container.allKeys.first.unsafelyUnwrapped {
                         case DecodingKeys.bool:
-                            let variable: Bool
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
                             self = .bool(_: variable)
                         case DecodingKeys.int:
-                            let val: Int
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .int(val: val)
                         case DecodingKeys.double, DecodingKeys.altDouble2:
-                            let _0: Double
-                            _0 = try Double(from: contentDecoder)
+                            let _0 = try Double(from: contentDecoder)
                             self = .double(_: _0)
                         case DecodingKeys.string:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .string(_0)
                         case DecodingKeys.multi:
-                            let variable: Bool
-                            let val: Int
-                            let _2: String
+                            let _2 = try String(from: contentDecoder)
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            _2 = try String(from: contentDecoder)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .multi(_: variable, val: val, _2)
                         }
                     }
@@ -362,7 +350,7 @@ final class CodedAsEnumTests: XCTestCase {
                         case .string(let _0):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.string)
                             try _0.encode(to: contentEncoder)
-                        case .multi(_: let variable, val: let val, let _2):
+                        case .multi(_: let variable,val: let val,let _2):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.multi)
                             try _2.encode(to: contentEncoder)
                             var container = contentEncoder.container(keyedBy: CodingKeys.self)
@@ -393,25 +381,25 @@ final class CodedAsEnumTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testInternallyTaggedCustomValue() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodedAt("type")
-            enum SomeEnum {
-                case bool(_ variable: Bool)
-                @CodedAs("altInt")
-                case int(val: Int)
-                @CodedAs("altDouble1", "altDouble2")
-                case double(_: Double)
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-            }
-            """,
-            expandedSource:
+        func testInternallyTaggedCustomValue() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodedAt("type")
+                enum SomeEnum {
+                    case bool(_ variable: Bool)
+                    @CodedAs("altInt")
+                    case int(val: Int)
+                    @CodedAs("altDouble1", "altDouble2")
+                    case double(_: Double)
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variable: Bool)
@@ -423,36 +411,28 @@ final class CodedAsEnumTests: XCTestCase {
 
                 extension SomeEnum: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let type: String
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        type = try container.decode(String.self, forKey: CodingKeys.type)
+                        let type = try container.decode(String.self, forKey: CodingKeys.type)
                         switch type {
                         case "bool":
-                            let variable: Bool
                             let container = try decoder.container(keyedBy: CodingKeys.self)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
                             self = .bool(_: variable)
                         case "altInt":
-                            let val: Int
                             let container = try decoder.container(keyedBy: CodingKeys.self)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .int(val: val)
                         case "altDouble1", "altDouble2":
-                            let _0: Double
-                            _0 = try Double(from: decoder)
+                            let _0 = try Double(from: decoder)
                             self = .double(_: _0)
                         case "string":
-                            let _0: String
-                            _0 = try String(from: decoder)
+                            let _0 = try String(from: decoder)
                             self = .string(_0)
                         case "multi":
-                            let variable: Bool
-                            let val: Int
-                            let _2: String
+                            let _2 = try String(from: decoder)
                             let container = try decoder.container(keyedBy: CodingKeys.self)
-                            _2 = try String(from: decoder)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .multi(_: variable, val: val, _2)
                         default:
                             let context = DecodingError.Context(
@@ -483,7 +463,7 @@ final class CodedAsEnumTests: XCTestCase {
                         case .string(let _0):
                             try typeContainer.encode("string", forKey: CodingKeys.type)
                             try _0.encode(to: encoder)
-                        case .multi(_: let variable, val: let val, let _2):
+                        case .multi(_: let variable,val: let val,let _2):
                             try typeContainer.encode("multi", forKey: CodingKeys.type)
                             try _2.encode(to: encoder)
                             var container = encoder.container(keyedBy: CodingKeys.self)
@@ -501,7 +481,7 @@ final class CodedAsEnumTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

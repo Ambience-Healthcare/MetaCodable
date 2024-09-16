@@ -22,7 +22,7 @@ package struct ContentAt: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -61,5 +61,5 @@ extension ContentAt: KeyPathProvider {
     ///
     /// - Parameter path: Current `CodingKey` path.
     /// - Returns: Updated `CodingKey` path.
-    func keyPath(withExisting path: [String]) -> [String] { providedPath }
+    func keyPath(withExisting _: [String]) -> [String] { providedPath }
 }

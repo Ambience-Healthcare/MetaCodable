@@ -19,7 +19,8 @@ protocol DiagnosticCondition {
 ///
 /// This condition is satisfied only if any of the conditions are satisfied.
 struct OrDiagnosticCondition<L, R>: DiagnosticCondition
-where L: DiagnosticCondition, R: DiagnosticCondition {
+    where L: DiagnosticCondition, R: DiagnosticCondition
+{
     /// The first condition.
     let lhs: L
     /// The second condition.
@@ -45,6 +46,7 @@ where L: DiagnosticCondition, R: DiagnosticCondition {
 ///
 /// - Returns: The resulting condition.
 func || <L, R>(lhs: L, rhs: R) -> OrDiagnosticCondition<L, R>
-where L: DiagnosticCondition, R: DiagnosticCondition {
+    where L: DiagnosticCondition, R: DiagnosticCondition
+{
     return .init(lhs: lhs, rhs: rhs)
 }

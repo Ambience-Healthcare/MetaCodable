@@ -27,7 +27,7 @@ package struct CodedBy: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -72,7 +72,7 @@ package struct CodedBy: PropertyAttribute {
 }
 
 extension Registration
-where
+    where
     Decl: AttributableDeclSyntax, Var: DefaultPropertyVariable,
     Var.Initialization == RequiredInitialization
 {
@@ -86,14 +86,14 @@ where
     ///
     /// - Returns: Newly built registration with helper expression data.
     func useHelperCoderIfExists() -> Registration<Decl, Key, CodedByOutput> {
-        guard let attr = CodedBy(from: self.decl)
-        else { return self.updating(with: self.variable.any) }
-        let newVar = self.variable.with(helper: attr.expr)
-        return self.updating(with: newVar.any)
+        guard let attr = CodedBy(from: decl)
+        else { return updating(with: variable.any) }
+        let newVar = variable.with(helper: attr.expr)
+        return updating(with: newVar.any)
     }
 }
 
-fileprivate extension DefaultPropertyVariable {
+private extension DefaultPropertyVariable {
     /// Update variable data with the helper instance expression provided.
     ///
     /// `HelperCodedVariable` is created with this variable as base

@@ -58,7 +58,7 @@ struct MetaProtocolCodable: BuildToolPlugin {
         // Create source scan commands
         var intermFiles: [Path] = []
         var buildCommands = allTargets.flatMap { target in
-            return target.sourceFiles(withSuffix: "swift").map { file in
+            target.sourceFiles(withSuffix: "swift").map { file in
                 let moduleName = target.moduleName
                 let fileName = file.path.stem
                 let genFileName = "\(moduleName)-\(fileName)-gen.json"
@@ -66,8 +66,8 @@ struct MetaProtocolCodable: BuildToolPlugin {
                 intermFiles.append(genFile)
                 return Command.buildCommand(
                     displayName: """
-                        Parse source file "\(fileName)" in module "\(moduleName)"
-                        """,
+                    Parse source file "\(fileName)" in module "\(moduleName)"
+                    """,
                     executable: tool.path,
                     arguments: [
                         "parse",
@@ -95,8 +95,8 @@ struct MetaProtocolCodable: BuildToolPlugin {
         buildCommands.append(
             .buildCommand(
                 displayName: """
-                    Generate protocol decoding/encoding syntax for "\(moduleName)"
-                    """,
+                Generate protocol decoding/encoding syntax for "\(moduleName)"
+                """,
                 executable: tool.path,
                 arguments: genArgs,
                 inputFiles: intermFiles,
@@ -123,33 +123,33 @@ extension MetaProtocolCodable {
         context: PluginContext, target: Target
     ) async throws -> [Command] {
         guard let target = target as? SourceModuleTarget else { return [] }
-        return try self.createBuildCommands(
+        return try createBuildCommands(
             in: context, for: SwiftPackageTarget(module: target)
         )
     }
 }
 
 #if canImport(XcodeProjectPlugin)
-import XcodeProjectPlugin
+    import XcodeProjectPlugin
 
-extension MetaProtocolCodable: XcodeBuildToolPlugin {
-    /// Invoked by Xcode to create build commands for a particular target.
-    ///
-    /// Creates build commands that produces intermediate files scanning
-    /// swift source files according to configuration. Final build command
-    /// generates syntax aggregating all intermediate files.
-    ///
-    /// - Parameters:
-    ///   - context: The package and environmental inputs context.
-    ///   - target: The target including plugin.
-    ///
-    /// - Returns: The commands to be executed during build.
-    func createBuildCommands(
-        context: XcodePluginContext, target: XcodeTarget
-    ) throws -> [Command] {
-        return try self.createBuildCommands(
-            in: context, for: target
-        )
+    extension MetaProtocolCodable: XcodeBuildToolPlugin {
+        /// Invoked by Xcode to create build commands for a particular target.
+        ///
+        /// Creates build commands that produces intermediate files scanning
+        /// swift source files according to configuration. Final build command
+        /// generates syntax aggregating all intermediate files.
+        ///
+        /// - Parameters:
+        ///   - context: The package and environmental inputs context.
+        ///   - target: The target including plugin.
+        ///
+        /// - Returns: The commands to be executed during build.
+        func createBuildCommands(
+            context: XcodePluginContext, target: XcodeTarget
+        ) throws -> [Command] {
+            return try createBuildCommands(
+                in: context, for: target
+            )
+        }
     }
-}
 #endif

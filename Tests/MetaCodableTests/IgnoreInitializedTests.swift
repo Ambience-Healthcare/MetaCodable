@@ -1,50 +1,49 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class IgnoreInitializedTests: XCTestCase {
-
-    func testMisuse() throws {
-        assertMacroExpansion(
-            """
-            @IgnoreCodingInitialized
-            struct SomeCodable {
-                var one: String = "some"
-            }
-            """,
-            expandedSource:
+    final class IgnoreInitializedTests: XCTestCase {
+        func testMisuse() throws {
+            assertMacroExpansion(
+                """
+                @IgnoreCodingInitialized
+                struct SomeCodable {
+                    var one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var one: String = "some"
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: IgnoreCodingInitialized.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: IgnoreCodingInitialized.misuseID,
+                        message:
                         "@IgnoreCodingInitialized must be used in combination with @Codable",
-                    line: 1, column: 1,
-                    fixIts: [
-                        .init(
-                            message: "Remove @IgnoreCodingInitialized attribute"
-                        )
-                    ]
-                )
-            ]
-        )
-    }
+                        line: 1, column: 1,
+                        fixIts: [
+                            .init(
+                                message: "Remove @IgnoreCodingInitialized attribute"
+                            ),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @IgnoreCodingInitialized
-            struct SomeCodable {
-                var one: String = "some"
-            }
-            """,
-            expandedSource:
+        func testIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @IgnoreCodingInitialized
+                struct SomeCodable {
+                    var one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var one: String = "some"
@@ -60,19 +59,19 @@ final class IgnoreInitializedTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testClassIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @IgnoreCodingInitialized
-            class SomeCodable {
-                var one: String = "some"
-            }
-            """,
-            expandedSource:
+        func testClassIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @IgnoreCodingInitialized
+                class SomeCodable {
+                    var one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 class SomeCodable {
                     var one: String = "some"
@@ -90,25 +89,25 @@ final class IgnoreInitializedTests: XCTestCase {
                 extension SomeCodable: Encodable {
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @IgnoreCodingInitialized
-            enum SomeEnum {
-                case bool(_ variableBool: Bool = true)
+        func testEnumIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
                 @IgnoreCodingInitialized
-                @CodedAs("altInt")
-                case int(val: Int = 6)
-                @CodedAs("altString")
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String = "text")
-            }
-            """,
-            expandedSource:
+                enum SomeEnum {
+                    case bool(_ variableBool: Bool = true)
+                    @IgnoreCodingInitialized
+                    @CodedAs("altInt")
+                    case int(val: Int = 6)
+                    @CodedAs("altString")
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String = "text")
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variableBool: Bool = true)
@@ -134,15 +133,12 @@ final class IgnoreInitializedTests: XCTestCase {
                         case DecodingKeys.int:
                             self = .int(val: 6)
                         case DecodingKeys.string:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .string(_0)
                         case DecodingKeys.multi:
-                            let variable: Bool
-                            let val: Int
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .multi(_: variable, val: val, "text")
                         }
                     }
@@ -159,7 +155,7 @@ final class IgnoreInitializedTests: XCTestCase {
                         case .string(let _0):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.string)
                             try _0.encode(to: contentEncoder)
-                        case .multi(_: let variable, val: let val, _):
+                        case .multi(_: let variable,val: let val,_):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.multi)
                             var container = contentEncoder.container(keyedBy: CodingKeys.self)
                             try container.encode(variable, forKey: CodingKeys.variable)
@@ -185,25 +181,25 @@ final class IgnoreInitializedTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumCaseIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            enum SomeEnum {
-                @IgnoreCodingInitialized
-                case bool(_ variableBool: Bool = true)
-                @IgnoreCodingInitialized
-                @CodedAs("altInt")
-                case int(val: Int = 6)
-                @CodedAs("altString")
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String = "text")
-            }
-            """,
-            expandedSource:
+        func testEnumCaseIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                enum SomeEnum {
+                    @IgnoreCodingInitialized
+                    case bool(_ variableBool: Bool = true)
+                    @IgnoreCodingInitialized
+                    @CodedAs("altInt")
+                    case int(val: Int = 6)
+                    @CodedAs("altString")
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String = "text")
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variableBool: Bool = true)
@@ -229,17 +225,13 @@ final class IgnoreInitializedTests: XCTestCase {
                         case DecodingKeys.int:
                             self = .int(val: 6)
                         case DecodingKeys.string:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .string(_0)
                         case DecodingKeys.multi:
-                            let variable: Bool
-                            let val: Int
-                            let _2: String
+                            let _2 = try String (from: contentDecoder)
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            _2 = try String (from: contentDecoder)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .multi(_: variable, val: val, _2)
                         }
                     }
@@ -256,7 +248,7 @@ final class IgnoreInitializedTests: XCTestCase {
                         case .string(let _0):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.string)
                             try _0.encode(to: contentEncoder)
-                        case .multi(_: let variable, val: let val, let _2):
+                        case .multi(_: let variable,val: let val,let _2):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.multi)
                             try _2.encode(to: contentEncoder)
                             var container = contentEncoder.container(keyedBy: CodingKeys.self)
@@ -283,20 +275,20 @@ final class IgnoreInitializedTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testExplicitCodingWithIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @IgnoreCodingInitialized
-            struct SomeCodable {
-                @CodedIn
-                var one: String = "some"
-            }
-            """,
-            expandedSource:
+        func testExplicitCodingWithIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @IgnoreCodingInitialized
+                struct SomeCodable {
+                    @CodedIn
+                    var one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var one: String = "some"
@@ -322,21 +314,21 @@ final class IgnoreInitializedTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testExplicitCodingWithTopAndDecodeIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @IgnoreCodingInitialized
-            struct SomeCodable {
-                @CodedIn
-                @IgnoreDecoding
-                var one: String = "some"
-            }
-            """,
-            expandedSource:
+        func testExplicitCodingWithTopAndDecodeIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @IgnoreCodingInitialized
+                struct SomeCodable {
+                    @CodedIn
+                    @IgnoreDecoding
+                    var one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var one: String = "some"
@@ -360,21 +352,21 @@ final class IgnoreInitializedTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testExplicitCodingWithTopAndEncodeIgnore() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @IgnoreCodingInitialized
-            struct SomeCodable {
-                @CodedIn
-                @IgnoreEncoding
-                var one: String = "some"
-            }
-            """,
-            expandedSource:
+        func testExplicitCodingWithTopAndEncodeIgnore() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @IgnoreCodingInitialized
+                struct SomeCodable {
+                    @CodedIn
+                    @IgnoreEncoding
+                    var one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var one: String = "some"
@@ -398,7 +390,7 @@ final class IgnoreInitializedTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

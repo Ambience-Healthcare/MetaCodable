@@ -26,7 +26,7 @@ extension Bool: ValueCodingStrategy {
             ]
             guard
                 let value = try fallbacks.lazy.compactMap({
-                    return try $0(decoder)
+                    try $0(decoder)
                 }).first
             else { throw error }
             return value
@@ -63,8 +63,8 @@ private extension String {
                     .init(
                         codingPath: decoder.codingPath,
                         debugDescription: """
-                            "\(self)" can't be represented as Boolean
-                            """
+                        "\(self)" can't be represented as Boolean
+                        """
                     )
                 )
             case .none:
@@ -75,7 +75,8 @@ private extension String {
 }
 
 private extension ExpressibleByIntegerLiteral
-where Self: Decodable, Self: Equatable {
+    where Self: Decodable, Self: Equatable
+{
     /// Decodes optional boolean data from the given `decoder`.
     ///
     /// - Parameter decoder: The decoder to read data from.
@@ -95,8 +96,8 @@ where Self: Decodable, Self: Equatable {
                 .init(
                     codingPath: decoder.codingPath,
                     debugDescription: """
-                        "\(self)" can't be represented as Boolean
-                        """
+                    "\(self)" can't be represented as Boolean
+                    """
                 )
             )
         case .none:

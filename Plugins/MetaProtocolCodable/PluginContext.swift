@@ -45,7 +45,7 @@ extension PluginContext: MetaProtocolCodablePluginContext {
     ///
     /// Includes all the source code targets of the package.
     var localTargets: [SwiftPackageTarget] {
-        return `package`.targets.compactMap { target in
+        return package.targets.compactMap { target in
             guard let sourceModule = target.sourceModule else { return nil }
             return SwiftPackageTarget(module: sourceModule)
         }
@@ -53,12 +53,12 @@ extension PluginContext: MetaProtocolCodablePluginContext {
 }
 
 #if canImport(XcodeProjectPlugin)
-import XcodeProjectPlugin
+    import XcodeProjectPlugin
 
-extension XcodePluginContext: MetaProtocolCodablePluginContext {
-    /// The targets which are local to current context.
-    ///
-    /// Includes all the targets of the Xcode project.
-    var localTargets: [XcodeTarget] { xcodeProject.targets }
-}
+    extension XcodePluginContext: MetaProtocolCodablePluginContext {
+        /// The targets which are local to current context.
+        ///
+        /// Includes all the targets of the Xcode project.
+        var localTargets: [XcodeTarget] { xcodeProject.targets }
+    }
 #endif

@@ -16,7 +16,7 @@ public typealias ISO8601DateCoder = DateCoder<ISO8601DateFormatter>
 public struct DateCoder<Formatter: DateFormatConverter>: HelperCoder {
     /// The formatter to use for text format conversion.
     @usableFromInline
-    internal let formatter: Formatter
+    let formatter: Formatter
 
     /// Creates a new instance of `HelperCoder` that decodes/encodes
     /// formatted date representation.
@@ -35,7 +35,7 @@ public struct DateCoder<Formatter: DateFormatConverter>: HelperCoder {
     /// Created instance can be used to decode/encode dates
     /// represented in **ISO 8601** format.
     public init() where Formatter == ISO8601DateFormatter {
-        self.formatter = Formatter()
+        formatter = Formatter()
     }
 
     /// Decodes formatted date representation from the given `decoder`.
@@ -57,8 +57,8 @@ public struct DateCoder<Formatter: DateFormatConverter>: HelperCoder {
                 .init(
                     codingPath: decoder.codingPath,
                     debugDescription: """
-                        "\(strValue)" could not convert to Date by \(formatter)
-                        """
+                    "\(strValue)" could not convert to Date by \(formatter)
+                    """
                 )
             )
         }

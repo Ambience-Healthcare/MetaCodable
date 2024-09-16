@@ -7,7 +7,8 @@ import SwiftSyntaxMacros
 /// This type can be used to implement `Codable` conformances for different
 /// type declarations, i.e. `struct`, `class`, `enum` etc.
 protocol TypeVariable: Variable
-where CodingLocation == TypeCodingLocation, Generated == TypeGenerated? {
+    where CodingLocation == TypeCodingLocation, Generated == TypeGenerated?
+{
     /// Provides the syntax for `CodingKeys` declarations.
     ///
     /// Individual implementation can customize `CodingKeys`
@@ -35,11 +36,9 @@ extension TypeVariable {
     ///
     /// - Returns: The protocol type with name if exists.
     func `protocol`(named name: String, in types: [TypeSyntax]) -> TypeSyntax? {
-        return
-            if let conf = types.first(
-                where: { $0.trimmed.description == name }
-            )
-        {
+        if let conf = types.first(
+            where: { $0.trimmed.description == name }
+        ) {
             conf
         } else if types.contains(
             where: { $0.description.contains(name) }

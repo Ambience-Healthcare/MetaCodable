@@ -6,13 +6,14 @@ import MetaCodable
 /// This type can be used to use separate `HelperCoder`s
 /// for decoding and encoding.
 public struct ConditionalCoder<D: HelperCoder, E: HelperCoder>: HelperCoder
-where D.Coded == E.Coded {
+    where D.Coded == E.Coded
+{
     /// The `HelperCoder` used for decoding.
     @usableFromInline
-    internal let decoder: D
+    let decoder: D
     /// The `HelperCoder` used for encoding.
     @usableFromInline
-    internal let encoder: E
+    let encoder: E
 
     /// Creates a new instance of `HelperCoder` that decodes/encodes
     /// conditionally with provided decoder/encoder respectively.

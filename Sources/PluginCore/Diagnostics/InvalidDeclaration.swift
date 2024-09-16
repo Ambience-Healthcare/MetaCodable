@@ -100,6 +100,7 @@ extension Attribute {
     ) -> InvalidDeclaration<Self> {
         return .init(self, expect: types)
     }
+
     /// Indicates attribute expects the attached syntax of
     /// provided types.
     ///

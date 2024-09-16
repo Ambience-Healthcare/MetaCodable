@@ -6,7 +6,8 @@ import SwiftSyntaxMacros
 /// The `AnyPropertyVariable` type forwards `Variable` implementations
 /// to an underlying variable value, hiding the type of the wrapped value.
 struct AnyPropertyVariable<Initialization>: PropertyVariable
-where Initialization: VariableInitialization {
+    where Initialization: VariableInitialization
+{
     /// The value wrapped by this instance.
     ///
     /// The base property can be cast back
@@ -81,7 +82,7 @@ where Initialization: VariableInitialization {
     /// - Returns: Newly created variable.
     init(base: some PropertyVariable<Initialization>) {
         self.base = base
-        self.initialization = { base.initializing(in: $0) }
+        initialization = { base.initializing(in: $0) }
     }
 
     /// Wraps the provided variable erasing its type.
@@ -91,12 +92,12 @@ where Initialization: VariableInitialization {
     /// - Parameter base: The underlying variable value.
     /// - Returns: Newly created variable.
     init<Var: PropertyVariable>(base: Var)
-    where
+        where
         Var.Initialization: RequiredVariableInitialization,
         Initialization == AnyRequiredVariableInitialization
     {
         self.base = base
-        self.initialization = { .init(base: base.initializing(in: $0)) }
+        initialization = { .init(base: base.initializing(in: $0)) }
     }
 
     /// Indicates the initialization type for this variable.
@@ -150,7 +151,8 @@ where Initialization: VariableInitialization {
 }
 
 extension AnyPropertyVariable: AssociatedVariable
-where Initialization: RequiredVariableInitialization {
+    where Initialization: RequiredVariableInitialization
+{
     /// The label of the variable.
     ///
     /// Provides label of the underlying associated variable value,
@@ -172,7 +174,8 @@ extension PropertyVariable where Initialization: VariableInitialization {
 }
 
 extension PropertyVariable
-where Initialization: RequiredVariableInitialization {
+    where Initialization: RequiredVariableInitialization
+{
     /// Erase type of this variable and initialization type.
     ///
     /// Wraps this variable in an `AnyPropertyVariable` instance and the initialization

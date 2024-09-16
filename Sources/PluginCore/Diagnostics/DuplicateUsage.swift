@@ -62,7 +62,7 @@ struct DuplicateUsage<Attr: Attribute>: DiagnosticProducer {
             }
         let message = attr.diagnostic(
             message:
-                "@\(attr.name) \(verb) only be applied once per declaration",
+            "@\(attr.name) \(verb) only be applied once per declaration",
             id: attr.misuseMessageID,
             severity: severity
         )

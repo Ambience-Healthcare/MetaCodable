@@ -1,19 +1,18 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class AccessModifierTests: XCTestCase {
-
-    func testOpen() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            open class SomeCodable {
-                let value: String
-            }
-            """,
-            expandedSource:
+    final class AccessModifierTests: XCTestCase {
+        func testOpen() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                open class SomeCodable {
+                    let value: String
+                }
+                """,
+                expandedSource:
                 """
                 open class SomeCodable {
                     let value: String
@@ -39,19 +38,19 @@ final class AccessModifierTests: XCTestCase {
                 extension SomeCodable: Encodable {
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testPublic() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            public struct SomeCodable {
-                let value: String
-            }
-            """,
-            expandedSource:
+        func testPublic() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                public struct SomeCodable {
+                    let value: String
+                }
+                """,
+                expandedSource:
                 """
                 public struct SomeCodable {
                     let value: String
@@ -81,19 +80,19 @@ final class AccessModifierTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testPackage() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            package struct SomeCodable {
-                let value: String
-            }
-            """,
-            expandedSource:
+        func testPackage() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                package struct SomeCodable {
+                    let value: String
+                }
+                """,
+                expandedSource:
                 """
                 package struct SomeCodable {
                     let value: String
@@ -123,21 +122,21 @@ final class AccessModifierTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testOthers() throws {
-        for modifier in ["internal", "fileprivate", "private", ""] {
-            let prefix = modifier.isEmpty ? "" : "\(modifier) "
-            assertMacroExpansion(
-                """
-                @Codable
-                @MemberInit
-                \(prefix)struct SomeCodable {
-                    let value: String
-                }
-                """,
-                expandedSource:
+        func testOthers() throws {
+            for modifier in ["internal", "fileprivate", "private", ""] {
+                let prefix = modifier.isEmpty ? "" : "\(modifier) "
+                assertMacroExpansion(
+                    """
+                    @Codable
+                    @MemberInit
+                    \(prefix)struct SomeCodable {
+                        let value: String
+                    }
+                    """,
+                    expandedSource:
                     """
                     \(prefix)struct SomeCodable {
                         let value: String
@@ -167,8 +166,8 @@ final class AccessModifierTests: XCTestCase {
                         }
                     }
                     """
-            )
+                )
+            }
         }
     }
-}
 #endif

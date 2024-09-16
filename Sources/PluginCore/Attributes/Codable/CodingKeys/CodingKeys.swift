@@ -31,7 +31,7 @@ package struct CodingKeys: PeerAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -72,6 +72,6 @@ extension Registration where Key == [String] {
     ) -> Self where D: AttributableDeclSyntax {
         guard let attr = CodingKeys(from: decl) else { return self }
         let strategy = attr.strategy
-        return self.updating(with: strategy.transform(keyPath: self.key))
+        return updating(with: strategy.transform(keyPath: key))
     }
 }

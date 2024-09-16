@@ -1,20 +1,19 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class ExplicitCodingTests: XCTestCase {
-
-    func testGetterOnlyVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedIn
-                var value: String { "some" }
-            }
-            """,
-            expandedSource:
+    final class ExplicitCodingTests: XCTestCase {
+        func testGetterOnlyVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedIn
+                    var value: String { "some" }
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String { "some" }
@@ -38,23 +37,23 @@ final class ExplicitCodingTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testExplicitGetterOnlyVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedIn
-                var value: String {
-                    get {
-                        "some"
+        func testExplicitGetterOnlyVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedIn
+                    var value: String {
+                        get {
+                            "some"
+                        }
                     }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String {
@@ -82,22 +81,22 @@ final class ExplicitCodingTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testGetterOnlyVariableWithMultiLineStatements() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedIn
-                var value: String {
-                    let val = "Val"
-                    return "some\\(val)"
+        func testGetterOnlyVariableWithMultiLineStatements() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedIn
+                    var value: String {
+                        let val = "Val"
+                        return "some\\(val)"
+                    }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String {
@@ -124,22 +123,22 @@ final class ExplicitCodingTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testClassGetterOnlyVariableWithMultiLineStatements() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class SomeCodable {
-                @CodedIn
-                var value: String {
-                    let val = "Val"
-                    return "some\\(val)"
+        func testClassGetterOnlyVariableWithMultiLineStatements() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class SomeCodable {
+                    @CodedIn
+                    var value: String {
+                        let val = "Val"
+                        return "some\\(val)"
+                    }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 class SomeCodable {
                     var value: String {
@@ -166,25 +165,25 @@ final class ExplicitCodingTests: XCTestCase {
                 extension SomeCodable: Encodable {
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testComputedProperty() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedIn
-                var value: String {
-                    get {
-                        "some"
-                    }
-                    set {
+        func testComputedProperty() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedIn
+                    var value: String {
+                        get {
+                            "some"
+                        }
+                        set {
+                        }
                     }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String {
@@ -214,7 +213,7 @@ final class ExplicitCodingTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

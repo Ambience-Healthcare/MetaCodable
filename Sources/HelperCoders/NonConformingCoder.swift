@@ -6,7 +6,8 @@ import MetaCodable
 /// This type can be used to decode/encode exceptional
 /// floating-point values from a specified string representation.
 public struct NonConformingCoder<Float>: HelperCoder
-where Float: FloatingPoint & Codable & LosslessStringConvertible {
+    where Float: FloatingPoint & Codable & LosslessStringConvertible
+{
     /// The value representing positive infinity.
     private let positiveInfinity: String
     /// The value representing negative infinity.
@@ -57,8 +58,8 @@ where Float: FloatingPoint & Codable & LosslessStringConvertible {
                     .init(
                         codingPath: decoder.codingPath,
                         debugDescription: """
-                            "\(strValue)" couldn't convert to float \(Float.self)
-                            """
+                        "\(strValue)" couldn't convert to float \(Float.self)
+                        """
                     )
                 )
             }

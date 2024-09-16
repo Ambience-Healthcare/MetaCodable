@@ -8,7 +8,7 @@ import SwiftSyntaxMacros
 /// produces diagnostics based on condition result.
 struct ConditionalDiagnosticProducer<Condition, Producer, Fallback>:
     DiagnosticProducer
-where
+    where
     Condition: DiagnosticCondition, Producer: DiagnosticProducer,
     Fallback: DiagnosticProducer
 {
@@ -63,7 +63,7 @@ extension Attribute {
     func `if`<Condition, Producer, Fallback>(
         _ condition: Condition, _ producer: Producer, else fallback: Fallback
     ) -> ConditionalDiagnosticProducer<Condition, Producer, Fallback>
-    where
+        where
         Condition: DiagnosticCondition, Producer: DiagnosticProducer,
         Fallback: DiagnosticProducer
     {

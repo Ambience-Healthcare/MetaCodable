@@ -6,7 +6,8 @@ struct User {
 }
 
 struct TwoKeyCoder<Coded>: HelperCoder
-where Coded: Codable {
+    where Coded: Codable
+{
     let decodingKey: String
     let encodingKey: String
 }

@@ -7,7 +7,7 @@ import SwiftSyntaxMacros
 /// This type can be used for types like `struct`s and `class`es
 /// for `Codable` conformance implementation.
 struct MemberGroup<Decl>: TypeVariable, InitializableVariable
-where
+    where
     Decl: MemberGroupSyntax & GenericTypeDeclSyntax & AttributableDeclSyntax,
     Decl.MemberSyntax: VariableSyntax, Decl.MemberSyntax.Variable: NamedVariable
 {
@@ -40,8 +40,8 @@ where
             _ input: PathRegistration<MemberSyntax, MemberSyntax.Variable>
         ) -> PathRegistration<MemberSyntax, Output>
     ) {
-        self.constraintGenerator = .init(decl: decl)
-        let node = PropertyVariableTreeNode()
+        constraintGenerator = .init(decl: decl)
+        var node = PropertyVariableTreeNode()
         for member in decl.codableMembers(input: memberInput) {
             let `var` = member.codableVariable(in: context)
             let key = [CodingKeysMap.Key.name(for: `var`.name).text]
@@ -79,7 +79,7 @@ where
             code: node.decoding(
                 in: context,
                 from: .coder(location.method.arg, keyType: codingKeys.type)
-            ).combined(),
+            ),
             modifiers: [],
             whereClause: constraintGenerator.decodingClause(
                 withVariables: node.linkedVariables,
@@ -108,7 +108,7 @@ where
             code: node.encoding(
                 in: context,
                 to: .coder(location.method.arg, keyType: codingKeys.type)
-            ).combined(),
+            ),
             modifiers: [],
             whereClause: constraintGenerator.encodingClause(
                 withVariables: node.linkedVariables,
@@ -158,7 +158,8 @@ where
 }
 
 extension MemberGroup: DeclaredVariable
-where Decl.ChildSyntaxInput == Void, Decl.MemberSyntax == PropertyDeclSyntax {
+    where Decl.ChildSyntaxInput == Void, Decl.MemberSyntax == PropertyDeclSyntax
+{
     /// Creates a new variable from declaration and expansion context.
     ///
     /// Uses default builder actions that provides following features:
@@ -181,8 +182,7 @@ where Decl.ChildSyntaxInput == Void, Decl.MemberSyntax == PropertyDeclSyntax {
             from: decl, in: context,
             codingKeys: codingKeys, memberInput: ()
         ) { input in
-            return
-                input
+            input
                 .transformKeysAccordingToStrategy(attachedTo: decl)
                 .checkInitializedCodingIgnored(attachedAt: decl)
                 .registerKeyPath(

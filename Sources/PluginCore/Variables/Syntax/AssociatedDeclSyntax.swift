@@ -33,7 +33,7 @@ struct AssociatedDeclSyntax: VariableSyntax, AttributableDeclSyntax {
     /// The attributes attached to associated variable declaration.
     var attributes: AttributeListSyntax {
         // TODO: Revisit once attributes support added to associated variables.
-        //https://forums.swift.org/t/attached-macro-support-for-enum-case-arguments/67952
+        // https://forums.swift.org/t/attached-macro-support-for-enum-case-arguments/67952
         return []
     }
 }

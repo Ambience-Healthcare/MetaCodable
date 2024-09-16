@@ -51,6 +51,7 @@ extension KeyedVariable: PropertyVariable where Var: PropertyVariable {
     var requireDecodable: Bool? {
         return options.code ? base.requireDecodable : base.decode
     }
+
     /// Whether the variable type requires `Encodable` conformance.
     ///
     /// Provides whether underlying variable type requires
@@ -63,7 +64,8 @@ extension KeyedVariable: PropertyVariable where Var: PropertyVariable {
 }
 
 extension KeyedVariable: InitializableVariable
-where Var: InitializableVariable {
+    where Var: InitializableVariable
+{
     /// The initialization type of this variable.
     ///
     /// Initialization type is the same as underlying wrapped variable.
@@ -75,4 +77,4 @@ extension KeyedVariable: ValuedVariable where Var: ValuedVariable {}
 extension KeyedVariable: AssociatedVariable where Var: AssociatedVariable {}
 
 extension KeyedVariable: DefaultPropertyVariable
-where Var: DefaultPropertyVariable {}
+    where Var: DefaultPropertyVariable {}

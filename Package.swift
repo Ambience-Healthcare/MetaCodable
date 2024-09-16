@@ -1,8 +1,8 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 5.10
 
+import CompilerPluginSupport
 import Foundation
 import PackageDescription
-import CompilerPluginSupport
 
 let package = Package(
     name: "MetaCodable",
@@ -19,14 +19,14 @@ let package = Package(
         .plugin(name: "MetaProtocolCodable", targets: ["MetaProtocolCodable"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", "509.1.0"..<"511.0.0"),
-        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.4"),
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.1.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.2"),
-        .package(url: "https://github.com/swiftlang/swift-format", from: "509.0.0"),
-        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-format", from: "509.0.0"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
         // MARK: Core
+
         .target(
             name: "PluginCore",
             dependencies: [
@@ -34,11 +34,39 @@ let package = Package(
                 .product(name: "SwiftDiagnostics", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "OrderedCollections", package: "swift-collections"),
+                "MCOrderedCollections",
+            ]
+        ),
+        .target(
+            name: "MCOrderedCollections",
+            dependencies: ["MCInternalCollectionsUtilities"],
+            exclude: ["CMakeLists.txt"]
+        ),
+        .target(
+            name: "MCInternalCollectionsUtilities",
+            exclude: [
+                "CMakeLists.txt",
+                "Compatibility/UnsafeMutableBufferPointer+SE-0370.swift.gyb",
+                "Compatibility/UnsafeMutablePointer+SE-0370.swift.gyb",
+                "Compatibility/UnsafeRawPointer extensions.swift.gyb",
+                "Debugging.swift.gyb",
+                "Descriptions.swift.gyb",
+                "IntegerTricks/FixedWidthInteger+roundUpToPowerOfTwo.swift.gyb",
+                "IntegerTricks/Integer rank.swift.gyb",
+                "IntegerTricks/UInt+first and last set bit.swift.gyb",
+                "IntegerTricks/UInt+reversed.swift.gyb",
+                "RandomAccessCollection+Offsets.swift.gyb",
+                "Specialize.swift.gyb",
+                "UnsafeBitSet/_UnsafeBitSet+Index.swift.gyb",
+                "UnsafeBitSet/_UnsafeBitSet+_Word.swift.gyb",
+                "UnsafeBitSet/_UnsafeBitSet.swift.gyb",
+                "UnsafeBufferPointer+Extras.swift.gyb",
+                "UnsafeMutableBufferPointer+Extras.swift.gyb",
             ]
         ),
 
         // MARK: Macro
+
         .macro(
             name: "MacroPlugin",
             dependencies: [
@@ -52,6 +80,7 @@ let package = Package(
         .target(name: "HelperCoders", dependencies: ["MetaCodable"]),
 
         // MARK: Build Tool
+
         .executableTarget(
             name: "ProtocolGen",
             dependencies: [
@@ -68,6 +97,7 @@ let package = Package(
         ),
 
         // MARK: Test
+
         .testTarget(
             name: "MetaCodableTests",
             dependencies: [
@@ -90,75 +120,4 @@ extension Package.Dependency.Kind {
         else { return nil }
         return String(name)
     }
-}
-
-var unusedDeps: [String] = []
-var includeTargets: [String] = []
-var includeProducts: [String] = []
-
-if Context.environment["METACODABLE_CI"] == nil {
-    unusedDeps.append("swift-format")
-    if Context.environment["SPI_GENERATE_DOCS"] == nil {
-        unusedDeps.append("swift-docc-plugin")
-    }
-}
-
-if Context.environment["SWIFT_SYNTAX_EXTENSION_MACRO_FIXED"] != nil {
-    package.dependencies.removeAll { $0.kind.repoName == "swift-syntax" }
-    package.dependencies.append(
-        .package(
-            url: "https://github.com/soumyamahunt/swift-syntax.git",
-            branch: "extension-macro-assert-fix"
-        )
-    )
-
-    package.targets.forEach { target in
-        guard target.isTest else { return }
-        var settings = target.swiftSettings ?? []
-        settings.append(.define("SWIFT_SYNTAX_EXTENSION_MACRO_FIXED"))
-        target.swiftSettings = settings
-    }
-}
-
-if Context.environment["METACODABLE_BEING_USED_FROM_COCOAPODS"] != nil {
-    includeTargets.append(contentsOf: ["PluginCore", "MacroPlugin"])
-    includeProducts.append("MacroPlugin")
-    package.products.append(.executable(name: "MacroPlugin", targets: ["MacroPlugin"]))
-    package.targets = package.targets.compactMap { target in
-        guard target.type == .macro else { return target }
-        return .executableTarget(
-            name: target.name,
-            dependencies: target.dependencies,
-            path: target.path,
-            exclude: target.exclude,
-            sources: target.sources,
-            resources: target.resources,
-            publicHeadersPath: target.publicHeadersPath,
-            cSettings: target.cSettings,
-            cxxSettings: target.cxxSettings,
-            swiftSettings: target.swiftSettings,
-            linkerSettings: target.linkerSettings,
-            plugins: target.plugins
-        )
-    }
-
-    if Context.environment["METACODABLE_COCOAPODS_PROTOCOL_PLUGIN"] != nil {
-        includeTargets.append("ProtocolGen")
-        includeProducts.append("ProtocolGen")
-        package.products.append(
-            .executable(name: "ProtocolGen", targets: ["ProtocolGen"])
-        )
-    } else {
-        unusedDeps.append("swift-argument-parser")
-    }
-}
-
-package.dependencies.removeAll { unusedDeps.contains($0.kind.repoName ?? "") }
-
-if !includeTargets.isEmpty {
-    package.targets.removeAll { !includeTargets.contains($0.name) }
-}
-
-if !includeProducts.isEmpty {
-    package.products.removeAll { !includeProducts.contains($0.name) }
 }

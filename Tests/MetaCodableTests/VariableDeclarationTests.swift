@@ -1,20 +1,19 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class VariableDeclarationTests: XCTestCase {
-
-    func testInitializedImmutableVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let value: String = "some"
-            }
-            """,
-            expandedSource:
+    final class VariableDeclarationTests: XCTestCase {
+        func testInitializedImmutableVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let value: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String = "some"
@@ -41,19 +40,19 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testInitializedMutableVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value: String = "some"
-            }
-            """,
-            expandedSource:
+        func testInitializedMutableVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String = "some"
@@ -86,19 +85,19 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testGetterOnlyVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value: String { "some" }
-            }
-            """,
-            expandedSource:
+        func testGetterOnlyVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value: String { "some" }
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String { "some" }
@@ -117,23 +116,23 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testExplicitGetterOnlyVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value: String {
-                    get {
-                        "some"
+        func testExplicitGetterOnlyVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value: String {
+                        get {
+                            "some"
+                        }
                     }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String {
@@ -156,22 +155,22 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testGetterOnlyVariableWithMultiLineStatements() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value: String {
-                    let val = "Val"
-                    return "some\\(val)"
+        func testGetterOnlyVariableWithMultiLineStatements() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value: String {
+                        let val = "Val"
+                        return "some\\(val)"
+                    }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String {
@@ -193,27 +192,27 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testVariableWithPropertyObservers() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value1: String {
-                    didSet {
+        func testVariableWithPropertyObservers() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value1: String {
+                        didSet {
+                        }
+                    }
+
+                    var value2: String {
+                        willSet {
+                        }
                     }
                 }
-
-                var value2: String {
-                    willSet {
-                    }
-                }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value1: String {
@@ -255,27 +254,27 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testInitializedVariableWithPropertyObservers() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value1: String = "some" {
-                    didSet {
+        func testInitializedVariableWithPropertyObservers() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value1: String = "some" {
+                        didSet {
+                        }
+                    }
+
+                    var value2: String = "some" {
+                        willSet {
+                        }
                     }
                 }
-
-                var value2: String = "some" {
-                    willSet {
-                    }
-                }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value1: String = "some" {
@@ -328,25 +327,25 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testComputedProperty() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                var value: String {
-                    get {
-                        "some"
-                    }
-                    set {
+        func testComputedProperty() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    var value: String {
+                        get {
+                            "some"
+                        }
+                        set {
+                        }
                     }
                 }
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     var value: String {
@@ -371,19 +370,19 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testOptionalSyntaxVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let value: String?
-            }
-            """,
-            expandedSource:
+        func testOptionalSyntaxVariable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    let value: String?
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String?
@@ -413,59 +412,19 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
 
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let value: String!
-            }
-            """,
-            expandedSource:
+        func testGenericSyntaxOptionalVariable() throws {
+            assertMacroExpansion(
                 """
+                @Codable
+                @MemberInit
                 struct SomeCodable {
-                    let value: String!
-
-                    init(value: String! = nil) {
-                        self.value = value
-                    }
+                    let value: Optional<String>
                 }
-
-                extension SomeCodable: Decodable {
-                    init(from decoder: any Decoder) throws {
-                        let container = try decoder.container(keyedBy: CodingKeys.self)
-                        self.value = try container.decodeIfPresent(String.self, forKey: CodingKeys.value)
-                    }
-                }
-
-                extension SomeCodable: Encodable {
-                    func encode(to encoder: any Encoder) throws {
-                        var container = encoder.container(keyedBy: CodingKeys.self)
-                        try container.encodeIfPresent(self.value, forKey: CodingKeys.value)
-                    }
-                }
-
-                extension SomeCodable {
-                    enum CodingKeys: String, CodingKey {
-                        case value = "value"
-                    }
-                }
-                """
-        )
-    }
-
-    func testGenericSyntaxOptionalVariable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                let value: Optional<String>
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: Optional<String>
@@ -495,7 +454,7 @@ final class VariableDeclarationTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

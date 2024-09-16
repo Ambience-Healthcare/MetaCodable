@@ -6,9 +6,6 @@ protocol Post {
     var id: UUID { get }
 }
 
-typealias Identifier =
-    DynamicCodableIdentifier<String>
-
 @IgnoreCoding
 struct InvalidPost: Post {
     let id: UUID
@@ -17,7 +14,9 @@ struct InvalidPost: Post {
 
 @Codable
 struct TextPost: Post, DynamicCodable {
-    static var identifier: Identifier {
+    static var identifier:
+        DynamicCodableIdentifier<String>
+    {
         return "text"
     }
 
@@ -27,7 +26,9 @@ struct TextPost: Post, DynamicCodable {
 
 @Codable
 struct PicturePost: Post, DynamicCodable {
-    static var identifier: Identifier {
+    static var identifier:
+        DynamicCodableIdentifier<String>
+    {
         return ["picture", "photo"]
     }
 
@@ -38,7 +39,9 @@ struct PicturePost: Post, DynamicCodable {
 
 @Codable
 struct AudioPost: Post, DynamicCodable {
-    static var identifier: Identifier {
+    static var identifier:
+        DynamicCodableIdentifier<String>
+    {
         return "audio"
     }
 
@@ -49,7 +52,9 @@ struct AudioPost: Post, DynamicCodable {
 
 @Codable
 struct VideoPost: Post, DynamicCodable {
-    static var identifier: Identifier {
+    static var identifier:
+        DynamicCodableIdentifier<String>
+    {
         return "video"
     }
 

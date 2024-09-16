@@ -29,12 +29,12 @@ public struct Since1970DateCoder: HelperCoder {
         /// The value for division to convert
         /// interval into seconds.
         @usableFromInline
-        internal var conversion: TimeInterval {
+        var conversion: TimeInterval {
             switch self {
             case .seconds:
                 return 1
             case .milliseconds:
-                return 1_000
+                return 1000
             case .microseconds:
                 return 1_000_000
             case .nanoseconds:
@@ -45,7 +45,7 @@ public struct Since1970DateCoder: HelperCoder {
 
     /// The interval unit type.
     @usableFromInline
-    internal let type: IntervalType
+    let type: IntervalType
 
     /// Creates a new instance of `HelperCoder` that decodes/encodes
     /// UNIX timestamp.

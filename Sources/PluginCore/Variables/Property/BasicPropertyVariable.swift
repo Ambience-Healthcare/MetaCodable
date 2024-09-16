@@ -56,14 +56,14 @@ struct BasicPropertyVariable: DefaultPropertyVariable, DeclaredVariable {
     /// By default set as `nil`, unless
     /// `decode` is set explicitly during
     /// initialization.
-    var requireDecodable: Bool? { self.decode }
+    var requireDecodable: Bool? { decode }
     /// Whether the variable type requires
     /// `Encodable` conformance.
     ///
     /// By default set as `nil`, unless
     /// `encode` is set explicitly during
     /// initialization.
-    var requireEncodable: Bool? { self.encode }
+    var requireEncodable: Bool? { encode }
 
     /// The fallback behavior when decoding fails.
     ///
@@ -74,7 +74,7 @@ struct BasicPropertyVariable: DefaultPropertyVariable, DeclaredVariable {
     /// `nil` value only when missing or `null`.
     var decodingFallback: DecodingFallback {
         guard hasOptionalType else { return .throw }
-        return .onlyIfMissing("\(decodePrefix)\(name) = nil")
+        return .ifMissing("\(decodePrefix)\(name) = nil")
     }
 
     /// Creates a new variable with provided data.
@@ -111,17 +111,17 @@ struct BasicPropertyVariable: DefaultPropertyVariable, DeclaredVariable {
     ///   - decl: The declaration to read from.
     ///   - context: The context in which the macro expansion performed.
     init(
-        from decl: PropertyDeclSyntax, in context: some MacroExpansionContext
+        from decl: PropertyDeclSyntax, in _: some MacroExpansionContext
     ) {
-        self.name =
+        name =
             decl.binding.pattern.as(IdentifierPatternSyntax.self)!
-            .identifier.trimmed
-        self.type = decl.type
-        self.value = decl.binding.initializer?.value
-        self.decode = nil
-        self.encode = nil
-        self.decodePrefix = "self."
-        self.encodePrefix = "self."
+                .identifier.trimmed
+        type = decl.type
+        value = decl.binding.initializer?.value
+        decode = nil
+        encode = nil
+        decodePrefix = "self."
+        encodePrefix = "self."
     }
 
     /// Provides the code syntax for decoding this variable
@@ -140,24 +140,23 @@ struct BasicPropertyVariable: DefaultPropertyVariable, DeclaredVariable {
     ///
     /// - Returns: The generated variable decoding code.
     func decoding(
-        in context: some MacroExpansionContext,
+        in _: some MacroExpansionContext,
         from location: PropertyCodingLocation
     ) -> CodeBlockItemListSyntax {
         switch location {
-        case .coder(let decoder, let passedMethod):
-            let optionalToken: TokenSyntax = passedMethod?.trimmedDescription == "decodeIfPresent" ? "?" : ""
-
-            var type = type
-            if let implicitlyUnwrappedType = type.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
-                type = TypeSyntax(OptionalTypeSyntax(wrappedType: implicitlyUnwrappedType.wrappedType))
-            }
-
+        case let .coder(decoder, passedMethod):
+            let optionalToken: TokenSyntax =
+                if passedMethod?.trimmedDescription == "decodeIfPresent" {
+                    "?"
+                } else {
+                    ""
+                }
             return CodeBlockItemListSyntax {
                 """
                 \(decodePrefix)\(name) = try \(type)\(optionalToken)(from: \(decoder))
                 """
             }
-        case .container(let container, let key, let passedMethod):
+        case let .container(container, key, passedMethod):
             let (type, defMethod) = codingTypeMethod(forMethod: "decode")
             let method = passedMethod ?? defMethod
             return CodeBlockItemListSyntax {
@@ -184,17 +183,17 @@ struct BasicPropertyVariable: DefaultPropertyVariable, DeclaredVariable {
     ///
     /// - Returns: The generated variable encoding code.
     func encoding(
-        in context: some MacroExpansionContext,
+        in _: some MacroExpansionContext,
         to location: PropertyCodingLocation
     ) -> CodeBlockItemListSyntax {
         switch location {
-        case .coder(let encoder, _):
+        case let .coder(encoder, _):
             return CodeBlockItemListSyntax {
                 """
                 try \(encodePrefix)\(name).encode(to: \(encoder))
                 """
             }
-        case .container(let container, let key, let passedMethod):
+        case let .container(container, key, passedMethod):
             let (_, defMethod) = codingTypeMethod(forMethod: "encode")
             let method = passedMethod ?? defMethod
             return CodeBlockItemListSyntax {
@@ -220,7 +219,7 @@ extension BasicPropertyVariable: InitializableVariable {
     ///                      the macro expansion.
     /// - Returns: The type of initialization for variable.
     func initializing(
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) -> RequiredInitialization {
         let param: FunctionParameterSyntax =
             if hasOptionalType {

@@ -1,7 +1,6 @@
 import XCTest
 
 final class DynamicCodableTests: XCTestCase {
-
     func testPageWithExtPost() throws {
         let page = try JSONDecoder().decode(
             PageWithExtPosts.self, from: dataPageWithExtPosts
@@ -66,16 +65,5 @@ final class DynamicCodableTests: XCTestCase {
                 XCTFail("Invalid post count")
             }
         }
-    }
-
-    func testResponse() throws {
-        let rResponse = try JSONDecoder().decode(
-            Response.self, from: registrationResponseAttributesData
-        )
-        XCTAssertTrue(rResponse.attributes is RegistrationAttributes)
-        let vResponse = try JSONDecoder().decode(
-            Response.self, from: verificationResponseAttributesData
-        )
-        XCTAssertTrue(vResponse.attributes is VerificationAttributes)
     }
 }

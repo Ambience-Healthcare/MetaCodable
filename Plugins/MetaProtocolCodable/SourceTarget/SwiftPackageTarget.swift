@@ -24,12 +24,12 @@ extension SwiftPackageTarget: MetaProtocolCodableSourceTarget {
     var dependencyTargets: [Self] {
         return module.dependencies.lazy.compactMap { dependency in
             return switch dependency {
-            case .target(let target):
+            case let .target(target):
                 target.sourceModule
             default:
                 nil
             }
-        }.map { Self.init(module: $0) }
+        }.map { Self(module: $0) }
     }
 
     /// All the targets on which current target depends on.
@@ -38,7 +38,7 @@ extension SwiftPackageTarget: MetaProtocolCodableSourceTarget {
     var recursiveTargets: [Self] {
         return module.recursiveTargetDependencies.lazy
             .compactMap { $0.sourceModule }
-            .map { Self.init(module: $0) }
+            .map { Self(module: $0) }
     }
 
     /// A list of source files in the target that have the given
@@ -68,8 +68,7 @@ extension SwiftPackageTarget: MetaProtocolCodableSourceTarget {
         let contents = try fileManager.contentsOfDirectory(atPath: directory)
         let file = contents.first { file in
             let path = Path(file)
-            return name.lowercased()
-                == path.stem
+            return name.lowercased() == path.stem
                 .components(separatedBy: .alphanumerics.inverted)
                 .joined(separator: "")
                 .lowercased()

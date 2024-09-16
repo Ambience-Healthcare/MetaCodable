@@ -5,18 +5,18 @@ import XCTest
 final class DateCoderTests: XCTestCase {
     func testDecoding() throws {
         let jsonStr = """
-            {
-                "epochSeconds": 878639901,
-                "epochMilliSeconds": 878639901000,
-                "epochMicroSeconds": 878639901000000,
-                "epochNanoSeconds": 878639901000000000,
-                "iso8601Date": "1997-11-04T10:38:21Z",
-                "formattedDate": "1997-11-04T10:38:21+00:00"
-            }
-            """
+        {
+            "epochSeconds": 878639901,
+            "epochMilliSeconds": 878639901000,
+            "epochMicroSeconds": 878639901000000,
+            "epochNanoSeconds": 878639901000000000,
+            "iso8601Date": "1997-11-04T10:38:21Z",
+            "formattedDate": "1997-11-04T10:38:21+00:00"
+        }
+        """
         let json = try XCTUnwrap(jsonStr.data(using: .utf8))
         let model = try JSONDecoder().decode(Model.self, from: json)
-        let epoch: Double = 878639901
+        let epoch: Double = 878_639_901
         XCTAssertEqual(model.epochSeconds.timeIntervalSince1970, epoch)
         XCTAssertEqual(model.epochMilliSeconds.timeIntervalSince1970, epoch)
         XCTAssertEqual(model.epochMicroSeconds.timeIntervalSince1970, epoch)
@@ -30,15 +30,15 @@ final class DateCoderTests: XCTestCase {
 
     func testInvalidDecoding() throws {
         let jsonStr = """
-            {
-                "epochSeconds": 878639901,
-                "epochMilliSeconds": 878639901000,
-                "epochMicroSeconds": 878639901000000,
-                "epochNanoSeconds": 878639901000000000,
-                "iso8601Date": "invalid date",
-                "formattedDate": "1997-11-04T10:38:21+00:00"
-            }
-            """
+        {
+            "epochSeconds": 878639901,
+            "epochMilliSeconds": 878639901000,
+            "epochMicroSeconds": 878639901000000,
+            "epochNanoSeconds": 878639901000000000,
+            "iso8601Date": "invalid date",
+            "formattedDate": "1997-11-04T10:38:21+00:00"
+        }
+        """
         let json = try XCTUnwrap(jsonStr.data(using: .utf8))
         do {
             let _ = try JSONDecoder().decode(Model.self, from: json)
@@ -48,7 +48,7 @@ final class DateCoderTests: XCTestCase {
 }
 
 @Codable
-fileprivate struct Model: Equatable {
+private struct Model: Equatable {
     @CodedBy(Since1970DateCoder())
     let epochSeconds: Date
     @CodedBy(Since1970DateCoder(intervalType: .milliseconds))

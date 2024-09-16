@@ -1,28 +1,30 @@
 extension DynamicCodableIdentifier: CustomStringConvertible
-where Value: CustomStringConvertible {
+    where Value: CustomStringConvertible
+{
     /// A textual representation of this instance.
     ///
     /// Provides description of underlying value(s).
     public var description: String {
         switch self {
-        case .one(let key):
+        case let .one(key):
             return key.description
-        case .many(let keys):
+        case let .many(keys):
             return keys.description
         }
     }
 }
 
 extension DynamicCodableIdentifier: CustomDebugStringConvertible
-where Value: CustomDebugStringConvertible {
+    where Value: CustomDebugStringConvertible
+{
     /// A textual representation of this instance, suitable for debugging.
     ///
     /// Provides debugging description of underlying value(s).
     public var debugDescription: String {
         switch self {
-        case .one(let key):
+        case let .one(key):
             return key.debugDescription
-        case .many(let keys):
+        case let .many(keys):
             return keys.debugDescription
         }
     }
@@ -42,9 +44,9 @@ extension DynamicCodableIdentifier<String>: CodingKey {
     /// identifier.
     public var stringValue: String {
         return switch self {
-        case .one(let key):
+        case let .one(key):
             key
-        case .many(let keys):
+        case let .many(keys):
             keys.first ?? ""
         }
     }
@@ -54,7 +56,7 @@ extension DynamicCodableIdentifier<String>: CodingKey {
     /// Initialization fails always, resulting in `nil`.
     ///
     /// - parameter intValue: The integer value of the desired key.
-    public init?(intValue: Int) { return nil }
+    public init?(intValue _: Int) { return nil }
     /// Creates a new instance from the given string.
     ///
     /// Uses given string as single identifier value.
@@ -75,9 +77,9 @@ extension DynamicCodableIdentifier<String>: CodingKey {
     /// - Returns: Whether `stringValue` is equivalent.
     public static func ~= <Key: CodingKey>(left: Self, right: Key) -> Bool {
         return switch left {
-        case .one(let value):
+        case let .one(value):
             value == right.stringValue
-        case .many(let values):
+        case let .many(values):
             values.contains(right.stringValue)
         }
     }

@@ -28,7 +28,7 @@ extension AttributeExpander {
         ///
         /// - Returns: The newly created options.
         init(for decl: some DeclGroupSyntax) {
-            self.modifiersGenerator = .init(decl: decl)
+            modifiersGenerator = .init(decl: decl)
         }
     }
 }

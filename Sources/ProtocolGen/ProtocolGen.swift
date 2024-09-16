@@ -3,7 +3,7 @@ import Foundation
 import SwiftSyntax
 
 /// The default file manager used for this module.
-internal var fileManager = FileManager.default
+var fileManager = FileManager.default
 
 /// The root command for this module that can be executed asynchronously.
 ///
@@ -102,11 +102,11 @@ extension ProtocolGen {
         /// - Returns: The new data.
         static func aggregate(datas: [Self]) -> Self {
             return datas.reduce(
-                into: Self.init(protocols: [:])
+                into: Self(protocols: [:])
             ) { partialResult, data in
                 partialResult.protocols.merge(data.protocols) { old, new in
                     let types = old.types.merging(new.types) { old, new in
-                        return old.union(new)
+                        old.union(new)
                     }
                     let attributes = old.attributes.union(new.attributes)
                     return .init(types: types, attributes: attributes)

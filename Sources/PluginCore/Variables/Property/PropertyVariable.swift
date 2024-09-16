@@ -8,7 +8,7 @@ import SwiftSyntaxMacros
 /// decoded/encoded in the macro expansion phase.
 package protocol PropertyVariable<Initialization>: NamedVariable,
     ValuedVariable, ConditionalVariable, InitializableVariable
-where
+    where
     CodingLocation == PropertyCodingLocation,
     Generated == CodeBlockItemListSyntax, Initialization: VariableInitialization
 {
@@ -94,42 +94,20 @@ package enum PropertyCodingLocation {
     )
 }
 
-extension PropertyVariable
-where Self: ComposedVariable, Self.Wrapped: ConditionalVariable {
-    /// The arguments passed to encoding condition.
-    ///
-    /// Provides arguments of underlying variable value.
-    var conditionArguments: LabeledExprListSyntax {
-        return base.conditionArguments
-    }
-}
-
 extension PropertyVariable {
-    /// The arguments passed to encoding condition.
-    ///
-    /// Passes current variable as single argument.
-    var conditionArguments: LabeledExprListSyntax {
-        return [
-            .init(expression: "\(self.encodePrefix)\(self.name)" as ExprSyntax)
-        ]
-    }
-
     /// Check whether current type syntax
     /// represents an optional type.
     ///
     /// Checks whether the type syntax uses
     /// `?` optional type syntax (i.e. `Type?`) or
-    /// `!` implicitly unwrapped optional type syntax (i.e. `Type!`) or
     /// generic optional syntax (i.e. `Optional<Type>`).
     var hasOptionalType: Bool {
         if type.is(OptionalTypeSyntax.self) {
             return true
-        } else if type.is(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
-            return true
-        }  else if let type = type.as(IdentifierTypeSyntax.self),
-            type.name.text == "Optional",
-            let gArgs = type.genericArgumentClause?.arguments,
-            gArgs.count == 1
+        } else if let type = type.as(IdentifierTypeSyntax.self),
+                  type.name.text == "Optional",
+                  let gArgs = type.genericArgumentClause?.arguments,
+                  gArgs.count == 1
         {
             return true
         } else {
@@ -155,14 +133,11 @@ extension PropertyVariable {
         if let type = type.as(OptionalTypeSyntax.self) {
             dType = type.wrappedType
             dMethod = "\(method)IfPresent"
-        } else if let type = type.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
-            dType = type.wrappedType
-            dMethod = "\(method)IfPresent"
         } else if let type = type.as(IdentifierTypeSyntax.self),
-            type.name.text == "Optional",
-            let gArgs = type.genericArgumentClause?.arguments,
-            gArgs.count == 1,
-            let type = gArgs.first?.argument
+                  type.name.text == "Optional",
+                  let gArgs = type.genericArgumentClause?.arguments,
+                  gArgs.count == 1,
+                  let type = gArgs.first?.argument
         {
             dType = type
             dMethod = "\(method)IfPresent"
@@ -171,24 +146,5 @@ extension PropertyVariable {
             dMethod = method
         }
         return (dType, dMethod)
-    }
-}
-
-extension CodeBlockItemListSyntax: ConditionalVariableSyntax {
-    /// Generates new syntax with provided condition.
-    ///
-    /// Wraps existing syntax with an if expression based on provided condition.
-    ///
-    /// - Parameter condition: The condition for the existing syntax.
-    /// - Returns: The new syntax.
-    func adding(condition: LabeledExprListSyntax) -> CodeBlockItemListSyntax {
-        let condition = ConditionElementListSyntax {
-            .init(condition: .expression("(\(condition))"))
-        }
-        return CodeBlockItemListSyntax {
-            IfExprSyntax(conditions: condition) {
-                self
-            }
-        }
     }
 }

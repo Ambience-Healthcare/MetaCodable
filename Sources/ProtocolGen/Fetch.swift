@@ -10,8 +10,8 @@ extension ProtocolGen {
         /// Configuration for this command, including custom help text.
         static let configuration = CommandConfiguration(
             abstract: """
-                Fetch configuration file data, and provide in JSON format.
-                """
+            Fetch configuration file data, and provide in JSON format.
+            """
         )
 
         /// The path to fetch data from.

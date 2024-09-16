@@ -1,147 +1,146 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import SwiftDiagnostics
-import XCTest
+    import SwiftDiagnostics
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class CodedAsTests: XCTestCase {
-
-    func testMisuseOnGroupedVariableDeclaration() throws {
-        assertMacroExpansion(
-            """
-            struct SomeCodable {
-                @CodedAs("alt")
-                let one, two, three: String
-            }
-            """,
-            expandedSource:
+    final class CodedAsTests: XCTestCase {
+        func testMisuseOnGroupedVariableDeclaration() throws {
+            assertMacroExpansion(
+                """
+                struct SomeCodable {
+                    @CodedAs("alt")
+                    let one, two, three: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one, two, three: String
                 }
                 """,
-            diagnostics: [
-                .multiBinding(line: 2, column: 5)
-            ]
-        )
-    }
+                diagnostics: [
+                    .multiBinding(line: 2, column: 5),
+                ]
+            )
+        }
 
-    func testMisuseOnStaticVariableDeclaration() throws {
-        assertMacroExpansion(
-            """
-            struct SomeCodable {
-                @CodedAs("alt")
-                static let value: String
-            }
-            """,
-            expandedSource:
+        func testMisuseOnStaticVariableDeclaration() throws {
+            assertMacroExpansion(
+                """
+                struct SomeCodable {
+                    @CodedAs("alt")
+                    static let value: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     static let value: String
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can't be used with static variables declarations",
-                    line: 2, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                )
-            ]
-        )
-    }
+                        line: 2, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testMisuseInCombinationWithIgnoreCodingMacro() throws {
-        assertMacroExpansion(
-            """
-            struct SomeCodable {
-                @CodedAs("alt")
-                @IgnoreCoding
-                let one: String = "some"
-            }
-            """,
-            expandedSource:
+        func testMisuseInCombinationWithIgnoreCodingMacro() throws {
+            assertMacroExpansion(
+                """
+                struct SomeCodable {
+                    @CodedAs("alt")
+                    @IgnoreCoding
+                    let one: String = "some"
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one: String = "some"
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can't be used in combination with @IgnoreCoding",
-                    line: 2, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-                .init(
-                    id: IgnoreCoding.misuseID,
-                    message:
+                        line: 2, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: IgnoreCoding.misuseID,
+                        message:
                         "@IgnoreCoding can't be used in combination with @CodedAs",
-                    line: 3, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @IgnoreCoding attribute")
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 3, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @IgnoreCoding attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testDuplicatedMisuse() throws {
-        assertMacroExpansion(
-            """
-            struct SomeCodable {
-                @CodedAs("two")
-                @CodedAs("three")
-                let one: String
-            }
-            """,
-            expandedSource:
+        func testDuplicatedMisuse() throws {
+            assertMacroExpansion(
+                """
+                struct SomeCodable {
+                    @CodedAs("two")
+                    @CodedAs("three")
+                    let one: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let one: String
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can only be applied once per declaration",
-                    line: 2, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-                .init(
-                    id: CodedAs.misuseID,
-                    message:
+                        line: 2, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                    .init(
+                        id: CodedAs.misuseID,
+                        message:
                         "@CodedAs can only be applied once per declaration",
-                    line: 3, column: 5,
-                    fixIts: [
-                        .init(message: "Remove @CodedAs attribute")
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 3, column: 5,
+                        fixIts: [
+                            .init(message: "Remove @CodedAs attribute"),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testWithValue() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedAs("key")
-                let value: String
-                @CodedAs("key1", "key2")
-                let value1: String
-            }
-            """,
-            expandedSource:
+        func testWithValue() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedAs("key")
+                    let value: String
+                    @CodedAs("key1", "key2")
+                    let value1: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -194,23 +193,23 @@ final class CodedAsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithHelperAndValue() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedAs("key")
-                @CodedBy(LossySequenceCoder<[String]>())
-                let value: [String]
-                @CodedAs("key1", "key2")
-                @CodedBy(LossySequenceCoder<[String]>())
-                let value1: [String]
-            }
-            """,
-            expandedSource:
+        func testWithHelperAndValue() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedAs("key")
+                    @CodedBy(LossySequenceCoder<[String]>())
+                    let value: [String]
+                    @CodedAs("key1", "key2")
+                    @CodedBy(LossySequenceCoder<[String]>())
+                    let value1: [String]
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: [String]
@@ -263,23 +262,23 @@ final class CodedAsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithDefaultValue() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedAs("key")
-                @Default("some")
-                let value: String
-                @CodedAs("key1", "key2")
-                @Default("some")
-                let value1: String
-            }
-            """,
-            expandedSource:
+        func testWithDefaultValue() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedAs("key")
+                    @Default("some")
+                    let value: String
+                    @CodedAs("key1", "key2")
+                    @Default("some")
+                    let value1: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -288,40 +287,35 @@ final class CodedAsTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        if let container = container {
-                            do {
-                                let valueKeys = [CodingKeys.value, CodingKeys.key].filter {
-                                    container.allKeys.contains($0)
-                                }
-                                guard valueKeys.count == 1 else {
-                                    let context = DecodingError.Context(
-                                        codingPath: container.codingPath,
-                                        debugDescription: "Invalid number of keys found, expected one."
-                                    )
-                                    throw DecodingError.typeMismatch(Self.self, context)
-                                }
-                                self.value = try container.decodeIfPresent(String.self, forKey: valueKeys[0]) ?? "some"
-                            } catch {
-                                self.value = "some"
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        do {
+                            let valueKeys = [CodingKeys.value, CodingKeys.key].filter {
+                                container.allKeys.contains($0)
                             }
-                            do {
-                                let value1Keys = [CodingKeys.value1, CodingKeys.key1, CodingKeys.key2].filter {
-                                    container.allKeys.contains($0)
-                                }
-                                guard value1Keys.count == 1 else {
-                                    let context = DecodingError.Context(
-                                        codingPath: container.codingPath,
-                                        debugDescription: "Invalid number of keys found, expected one."
-                                    )
-                                    throw DecodingError.typeMismatch(Self.self, context)
-                                }
-                                self.value1 = try container.decodeIfPresent(String.self, forKey: value1Keys[0]) ?? "some"
-                            } catch {
-                                self.value1 = "some"
+                            guard valueKeys.count == 1 else {
+                                let context = DecodingError.Context(
+                                    codingPath: container.codingPath,
+                                    debugDescription: "Invalid number of keys found, expected one."
+                                )
+                                throw DecodingError.typeMismatch(Self.self, context)
                             }
-                        } else {
+                            self.value = try container.decodeIfPresent(String.self, forKey: valueKeys[0]) ?? "some"
+                        } catch {
                             self.value = "some"
+                        }
+                        do {
+                            let value1Keys = [CodingKeys.value1, CodingKeys.key1, CodingKeys.key2].filter {
+                                container.allKeys.contains($0)
+                            }
+                            guard value1Keys.count == 1 else {
+                                let context = DecodingError.Context(
+                                    codingPath: container.codingPath,
+                                    debugDescription: "Invalid number of keys found, expected one."
+                                )
+                                throw DecodingError.typeMismatch(Self.self, context)
+                            }
+                            self.value1 = try container.decodeIfPresent(String.self, forKey: value1Keys[0]) ?? "some"
+                        } catch {
                             self.value1 = "some"
                         }
                     }
@@ -345,25 +339,25 @@ final class CodedAsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithHelperAndDefaultValue() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct SomeCodable {
-                @CodedAs("key")
-                @CodedBy(LossySequenceCoder<[String]>())
-                @Default(["some"])
-                let value: [String]
-                @CodedAs("key1", "key2")
-                @CodedBy(LossySequenceCoder<[String]>())
-                @Default(["some"])
-                let value1: [String]
-            }
-            """,
-            expandedSource:
+        func testWithHelperAndDefaultValue() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct SomeCodable {
+                    @CodedAs("key")
+                    @CodedBy(LossySequenceCoder<[String]>())
+                    @Default(["some"])
+                    let value: [String]
+                    @CodedAs("key1", "key2")
+                    @CodedBy(LossySequenceCoder<[String]>())
+                    @Default(["some"])
+                    let value1: [String]
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: [String]
@@ -372,40 +366,35 @@ final class CodedAsTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        if let container = container {
-                            do {
-                                let valueKeys = [CodingKeys.value, CodingKeys.key].filter {
-                                    container.allKeys.contains($0)
-                                }
-                                guard valueKeys.count == 1 else {
-                                    let context = DecodingError.Context(
-                                        codingPath: container.codingPath,
-                                        debugDescription: "Invalid number of keys found, expected one."
-                                    )
-                                    throw DecodingError.typeMismatch(Self.self, context)
-                                }
-                                self.value = try LossySequenceCoder<[String]>().decodeIfPresent(from: container, forKey: valueKeys[0]) ?? ["some"]
-                            } catch {
-                                self.value = ["some"]
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        do {
+                            let valueKeys = [CodingKeys.value, CodingKeys.key].filter {
+                                container.allKeys.contains($0)
                             }
-                            do {
-                                let value1Keys = [CodingKeys.value1, CodingKeys.key1, CodingKeys.key2].filter {
-                                    container.allKeys.contains($0)
-                                }
-                                guard value1Keys.count == 1 else {
-                                    let context = DecodingError.Context(
-                                        codingPath: container.codingPath,
-                                        debugDescription: "Invalid number of keys found, expected one."
-                                    )
-                                    throw DecodingError.typeMismatch(Self.self, context)
-                                }
-                                self.value1 = try LossySequenceCoder<[String]>().decodeIfPresent(from: container, forKey: value1Keys[0]) ?? ["some"]
-                            } catch {
-                                self.value1 = ["some"]
+                            guard valueKeys.count == 1 else {
+                                let context = DecodingError.Context(
+                                    codingPath: container.codingPath,
+                                    debugDescription: "Invalid number of keys found, expected one."
+                                )
+                                throw DecodingError.typeMismatch(Self.self, context)
                             }
-                        } else {
+                            self.value = try LossySequenceCoder<[String]>().decodeIfPresent(from: container, forKey: valueKeys[0]) ?? ["some"]
+                        } catch {
                             self.value = ["some"]
+                        }
+                        do {
+                            let value1Keys = [CodingKeys.value1, CodingKeys.key1, CodingKeys.key2].filter {
+                                container.allKeys.contains($0)
+                            }
+                            guard value1Keys.count == 1 else {
+                                let context = DecodingError.Context(
+                                    codingPath: container.codingPath,
+                                    debugDescription: "Invalid number of keys found, expected one."
+                                )
+                                throw DecodingError.typeMismatch(Self.self, context)
+                            }
+                            self.value1 = try LossySequenceCoder<[String]>().decodeIfPresent(from: container, forKey: value1Keys[0]) ?? ["some"]
+                        } catch {
                             self.value1 = ["some"]
                         }
                     }
@@ -429,19 +418,19 @@ final class CodedAsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCodingKeyCaseNameCollisionHandling() {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct TestCodable {
-                @CodedAs("fooBar", "foo_bar")
-                var fooBar: String
-            }
-            """,
-            expandedSource:
+        func testCodingKeyCaseNameCollisionHandling() {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct TestCodable {
+                    @CodedAs("fooBar", "foo_bar")
+                    var fooBar: String
+                }
+                """,
+                expandedSource:
                 """
                 struct TestCodable {
                     var fooBar: String
@@ -478,19 +467,19 @@ final class CodedAsTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCodingKeyCaseNameCollisionHandlingWithDuplicateAliases() {
-        assertMacroExpansion(
-            """
-            @Codable
-            struct TestCodable {
-                @CodedAs("fooBar", "foo_bar", "foo_bar")
-                var fooBar: String
-            }
-            """,
-            expandedSource:
+        func testCodingKeyCaseNameCollisionHandlingWithDuplicateAliases() {
+            assertMacroExpansion(
+                """
+                @Codable
+                struct TestCodable {
+                    @CodedAs("fooBar", "foo_bar", "foo_bar")
+                    var fooBar: String
+                }
+                """,
+                expandedSource:
                 """
                 struct TestCodable {
                     var fooBar: String
@@ -527,7 +516,7 @@ final class CodedAsTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

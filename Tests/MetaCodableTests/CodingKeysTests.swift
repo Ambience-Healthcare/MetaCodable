@@ -1,21 +1,20 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import XCTest
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class CodingKeysTests: XCTestCase {
-
-    func testMisuseInAbsenceOfCodable() throws {
-        assertMacroExpansion(
-            """
-            @CodingKeys(.snake_case)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+    final class CodingKeysTests: XCTestCase {
+        func testMisuseInAbsenceOfCodable() throws {
+            assertMacroExpansion(
+                """
+                @CodingKeys(.snake_case)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -23,35 +22,35 @@ final class CodingKeysTests: XCTestCase {
                     let description: String
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodingKeys.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodingKeys.misuseID,
+                        message:
                         "@CodingKeys must be used in combination with @Codable",
-                    line: 1, column: 1,
-                    fixIts: [
-                        .init(
-                            message: "Remove @CodingKeys attribute"
-                        )
-                    ]
-                )
-            ]
-        )
-    }
+                        line: 1, column: 1,
+                        fixIts: [
+                            .init(
+                                message: "Remove @CodingKeys attribute"
+                            ),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testMisuseOnDuplicationAbsenceOfCodable() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.PascalCase)
-            @CodingKeys(.snake_case)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testMisuseOnDuplicationAbsenceOfCodable() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.PascalCase)
+                @CodingKeys(.snake_case)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -85,45 +84,45 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """,
-            diagnostics: [
-                .init(
-                    id: CodingKeys.misuseID,
-                    message:
+                diagnostics: [
+                    .init(
+                        id: CodingKeys.misuseID,
+                        message:
                         "@CodingKeys can only be applied once per declaration",
-                    line: 2, column: 1,
-                    fixIts: [
-                        .init(
-                            message: "Remove @CodingKeys attribute"
-                        )
-                    ]
-                ),
-                .init(
-                    id: CodingKeys.misuseID,
-                    message:
+                        line: 2, column: 1,
+                        fixIts: [
+                            .init(
+                                message: "Remove @CodingKeys attribute"
+                            ),
+                        ]
+                    ),
+                    .init(
+                        id: CodingKeys.misuseID,
+                        message:
                         "@CodingKeys can only be applied once per declaration",
-                    line: 3, column: 1,
-                    fixIts: [
-                        .init(
-                            message: "Remove @CodingKeys attribute"
-                        )
-                    ]
-                ),
-            ]
-        )
-    }
+                        line: 3, column: 1,
+                        fixIts: [
+                            .init(
+                                message: "Remove @CodingKeys attribute"
+                            ),
+                        ]
+                    ),
+                ]
+            )
+        }
 
-    func testCameCaseToPascalCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.PascalCase)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToPascalCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.PascalCase)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -157,21 +156,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCameCaseToSnakeCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.snake_case)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToSnakeCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.snake_case)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -205,21 +204,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testClassCameCaseToSnakeCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.snake_case)
-            class SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testClassCameCaseToSnakeCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.snake_case)
+                class SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 class SomeCodable {
                     let productName: String
@@ -253,25 +252,25 @@ final class CodingKeysTests: XCTestCase {
                 extension SomeCodable: Encodable {
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumCameCaseToSnakeCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.snake_case)
-            enum SomeEnum {
-                @CodingKeys(.kebab－case)
-                case bool(_ variableBool: Bool)
-                @CodedAs("altInt")
-                case int(valInt: Int)
-                @CodedAs("altString")
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-            }
-            """,
-            expandedSource:
+        func testEnumCameCaseToSnakeCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.snake_case)
+                enum SomeEnum {
+                    @CodingKeys(.kebab－case)
+                    case bool(_ variableBool: Bool)
+                    @CodedAs("altInt")
+                    case int(valInt: Int)
+                    @CodedAs("altString")
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variableBool: Bool)
@@ -293,27 +292,21 @@ final class CodingKeysTests: XCTestCase {
                         let contentDecoder = try container.superDecoder(forKey: container.allKeys.first.unsafelyUnwrapped)
                         switch container.allKeys.first.unsafelyUnwrapped {
                         case DecodingKeys.bool:
-                            let variableBool: Bool
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            variableBool = try container.decode(Bool.self, forKey: CodingKeys.variableBool)
+                            let variableBool = try container.decode(Bool.self, forKey: CodingKeys.variableBool)
                             self = .bool(_: variableBool)
                         case DecodingKeys.int:
-                            let valInt: Int
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            valInt = try container.decode(Int.self, forKey: CodingKeys.valInt)
+                            let valInt = try container.decode(Int.self, forKey: CodingKeys.valInt)
                             self = .int(valInt: valInt)
                         case DecodingKeys.string:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .string(_0)
                         case DecodingKeys.multi:
-                            let variable: Bool
-                            let val: Int
-                            let _2: String
+                            let _2 = try String(from: contentDecoder)
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            _2 = try String(from: contentDecoder)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .multi(_: variable, val: val, _2)
                         }
                     }
@@ -334,7 +327,7 @@ final class CodingKeysTests: XCTestCase {
                         case .string(let _0):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.string)
                             try _0.encode(to: contentEncoder)
-                        case .multi(_: let variable, val: let val, let _2):
+                        case .multi(_: let variable,val: let val,let _2):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.multi)
                             try _2.encode(to: contentEncoder)
                             var container = contentEncoder.container(keyedBy: CodingKeys.self)
@@ -363,21 +356,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCameCaseToCamelSnakeCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.camel_Snake_Case)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToCamelSnakeCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.camel_Snake_Case)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -411,21 +404,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCameCaseToScreamingSnakeCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.SCREAMING_SNAKE_CASE)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToScreamingSnakeCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.SCREAMING_SNAKE_CASE)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -459,21 +452,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCameCaseToKebabCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.kebab－case)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToKebabCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.kebab－case)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -507,21 +500,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCameCaseToScreamingKebabCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.SCREAMING－KEBAB－CASE)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToScreamingKebabCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.SCREAMING－KEBAB－CASE)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -555,21 +548,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testCameCaseToTrainCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.Train－Case)
-            struct SomeCodable {
-                let productName: String
-                let productCost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testCameCaseToTrainCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.Train－Case)
+                struct SomeCodable {
+                    let productName: String
+                    let productCost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let productName: String
@@ -603,21 +596,21 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testSnakeCaseToCameCase() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @CodingKeys(.camelCase)
-            struct SomeCodable {
-                let product_name: String
-                let product_cost: String
-                let description: String
-            }
-            """,
-            expandedSource:
+        func testSnakeCaseToCameCase() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @CodingKeys(.camelCase)
+                struct SomeCodable {
+                    let product_name: String
+                    let product_cost: String
+                    let description: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let product_name: String
@@ -651,26 +644,26 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testEnumCasesSupport() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            enum SomeEnum {
-                @CodingKeys(.snake_case)
-                case bool(_ variable: Bool)
-                @CodingKeys(.PascalCase)
-                @CodedAs("altInt")
-                case int(val: Int)
-                @CodingKeys(.kebab－case)
-                @CodedAs("altString")
-                case string(String)
-                case multi(_ variable: Bool, val: Int, String)
-            }
-            """,
-            expandedSource:
+        func testEnumCasesSupport() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                enum SomeEnum {
+                    @CodingKeys(.snake_case)
+                    case bool(_ variable: Bool)
+                    @CodingKeys(.PascalCase)
+                    @CodedAs("altInt")
+                    case int(val: Int)
+                    @CodingKeys(.kebab－case)
+                    @CodedAs("altString")
+                    case string(String)
+                    case multi(_ variable: Bool, val: Int, String)
+                }
+                """,
+                expandedSource:
                 """
                 enum SomeEnum {
                     case bool(_ variable: Bool)
@@ -692,27 +685,21 @@ final class CodingKeysTests: XCTestCase {
                         let contentDecoder = try container.superDecoder(forKey: container.allKeys.first.unsafelyUnwrapped)
                         switch container.allKeys.first.unsafelyUnwrapped {
                         case DecodingKeys.bool:
-                            let variable: Bool
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
                             self = .bool(_: variable)
                         case DecodingKeys.int:
-                            let val: Int
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            val = try container.decode(Int.self, forKey: CodingKeys.val)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.val)
                             self = .int(val: val)
                         case DecodingKeys.string:
-                            let _0: String
-                            _0 = try String(from: contentDecoder)
+                            let _0 = try String(from: contentDecoder)
                             self = .string(_0)
                         case DecodingKeys.multi:
-                            let variable: Bool
-                            let val: Int
-                            let _2: String
+                            let _2 = try String(from: contentDecoder)
                             let container = try contentDecoder.container(keyedBy: CodingKeys.self)
-                            _2 = try String(from: contentDecoder)
-                            variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
-                            val = try container.decode(Int.self, forKey: CodingKeys.__macro_local_3valfMu0_)
+                            let variable = try container.decode(Bool.self, forKey: CodingKeys.variable)
+                            let val = try container.decode(Int.self, forKey: CodingKeys.__macro_local_3valfMu0_)
                             self = .multi(_: variable, val: val, _2)
                         }
                     }
@@ -733,7 +720,7 @@ final class CodingKeysTests: XCTestCase {
                         case .string(let _0):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.string)
                             try _0.encode(to: contentEncoder)
-                        case .multi(_: let variable, val: let val, let _2):
+                        case .multi(_: let variable,val: let val,let _2):
                             let contentEncoder = container.superEncoder(forKey: CodingKeys.multi)
                             try _2.encode(to: contentEncoder)
                             var container = contentEncoder.container(keyedBy: CodingKeys.self)
@@ -761,7 +748,7 @@ final class CodingKeysTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

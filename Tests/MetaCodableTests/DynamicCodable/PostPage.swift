@@ -89,7 +89,7 @@ struct InvalidPost: ExtPost, IntPost, AdjPost {
     let invalid: Bool
 }
 
-struct Nested {
+enum Nested {
     @Codable
     struct ValidPost: ExtPost, IntPost, AdjPost, DynamicCodable {
         static var identifier: DynamicCodableIdentifier<String> { "nested" }

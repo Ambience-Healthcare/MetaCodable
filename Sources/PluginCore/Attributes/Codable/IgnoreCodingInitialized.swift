@@ -24,7 +24,7 @@ package struct IgnoreCodingInitialized: PeerAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -67,11 +67,9 @@ extension Registration where Var: ValuedVariable {
     ) -> Registration<Decl, Key, ConditionalCodingVariable<Var>> {
         typealias Output = ConditionalCodingVariable<Var>
         let attr = IgnoreCodingInitialized(from: decl)
-        let code = attr != nil ? self.variable.value == nil : nil
-        let options = Output.Options(
-            decode: code, encode: code, encodingConditionExpr: nil
-        )
-        let newVariable = Output(base: self.variable, options: options)
-        return self.updating(with: newVariable)
+        let code = attr != nil ? variable.value == nil : nil
+        let options = Output.Options(decode: code, encode: code)
+        let newVariable = Output(base: variable, options: options)
+        return updating(with: newVariable)
     }
 }

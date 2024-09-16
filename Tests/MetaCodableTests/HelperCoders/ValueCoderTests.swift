@@ -19,6 +19,7 @@ final class ValueCoderTests: XCTestCase {
     }
 
     // MARK: Bool
+
     func testIntToBooleanDecoding() throws {
         let json1 = try json(1, 5, 5.5, "some")
         let model1 = try JSONDecoder().decode(Model.self, from: json1)
@@ -77,6 +78,7 @@ final class ValueCoderTests: XCTestCase {
     }
 
     // MARK: Int
+
     func testBoolToIntDecoding() throws {
         let json1 = try json(true, true, 5.5, "some")
         let model1 = try JSONDecoder().decode(Model.self, from: json1)
@@ -122,6 +124,7 @@ final class ValueCoderTests: XCTestCase {
     }
 
     // MARK: Float
+
     func testBoolToFloatDecoding() throws {
         let json1 = try json(true, 5, true, "some")
         let model1 = try JSONDecoder().decode(Model.self, from: json1)
@@ -159,6 +162,7 @@ final class ValueCoderTests: XCTestCase {
     }
 
     // MARK: String
+
     func testBoolToStringDecoding() throws {
         let json1 = try json(true, 5, 5.5, true)
         let model1 = try JSONDecoder().decode(Model.self, from: json1)
@@ -186,7 +190,7 @@ final class ValueCoderTests: XCTestCase {
     }
 }
 
-fileprivate func json(
+private func json(
     _ bool: some Codable,
     _ int: some Codable,
     _ double: some Codable,
@@ -199,13 +203,13 @@ fileprivate func json(
     let doubleQuote = double is String ? "\"" : ""
     let stringQuote = string is String ? "\"" : ""
     let jsonStr = """
-        {
-            "bool": \(boolQuote)\(bool)\(boolQuote),
-            "int": \(intQuote)\(int)\(intQuote),
-            "double": \(doubleQuote)\(double)\(doubleQuote),
-            "string": \(stringQuote)\(string)\(stringQuote)
-        }
-        """
+    {
+        "bool": \(boolQuote)\(bool)\(boolQuote),
+        "int": \(intQuote)\(int)\(intQuote),
+        "double": \(doubleQuote)\(double)\(doubleQuote),
+        "string": \(stringQuote)\(string)\(stringQuote)
+    }
+    """
     return try XCTUnwrap(
         jsonStr.data(using: .utf8),
         file: file, line: line
@@ -213,7 +217,7 @@ fileprivate func json(
 }
 
 @Codable
-fileprivate struct Model {
+private struct Model {
     @CodedBy(ValueCoder<Bool>())
     let bool: Bool
     @CodedBy(ValueCoder<Int>())

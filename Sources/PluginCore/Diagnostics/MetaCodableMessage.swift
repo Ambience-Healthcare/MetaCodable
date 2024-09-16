@@ -52,8 +52,8 @@ struct MetaCodableMessage: Error, DiagnosticMessage, FixItMessage {
             changes: [
                 .replace(
                     oldNode: Syntax(macro),
-                    newNode: Syntax([] as AttributeListSyntax)
-                )
+                    newNode: Syntax("" as DeclSyntax)
+                ),
             ]
         )
     }
@@ -80,7 +80,7 @@ struct MetaCodableMessage: Error, DiagnosticMessage, FixItMessage {
     ) {
         self.macro = macro
         self.message = message
-        self.diagnosticID = messageID
+        diagnosticID = messageID
         self.severity = severity
     }
 

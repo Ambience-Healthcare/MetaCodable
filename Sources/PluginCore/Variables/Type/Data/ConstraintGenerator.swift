@@ -51,7 +51,7 @@ struct ConstraintGenerator {
         let allTypes = variables.filter { $0[keyPath: path] ?? true }
             .map(\.type.trimmed.description)
         let typeArguments = self.typeArguments.filter { type in
-            return allTypes.contains(type.description)
+            allTypes.contains(type.description)
         }
         guard !typeArguments.isEmpty else { return nil }
         return GenericWhereClauseSyntax {

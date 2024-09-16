@@ -24,7 +24,5 @@ struct MetaCodablePlugin: CompilerPlugin {
         MemberInit.self,
         CodingKeys.self,
         IgnoreCodingInitialized.self,
-        Inherits.self,
-        UnTagged.self,
     ]
 }

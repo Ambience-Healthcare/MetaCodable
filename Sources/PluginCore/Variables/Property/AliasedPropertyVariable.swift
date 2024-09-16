@@ -1,4 +1,4 @@
-import OrderedCollections
+import MCOrderedCollections
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
@@ -9,7 +9,8 @@ import SwiftSyntaxMacros
 /// by using the additional `CodingKey`s provided during initialization, by
 /// checking if only one of the key has data associated.
 struct AliasedPropertyVariable<Wrapped>: PropertyVariable, ComposedVariable
-where Wrapped: PropertyVariable {
+    where Wrapped: PropertyVariable
+{
     /// The value wrapped by this instance.
     ///
     /// The wrapped variable's type data is
@@ -43,7 +44,7 @@ where Wrapped: PropertyVariable {
         else { return base.decoding(in: context, from: location) }
         var allKeys = [key]
         let additionalKeys = additionalKeys.filter { aKey in
-            return aKey.expr.trimmedDescription != key.trimmedDescription
+            aKey.expr.trimmedDescription != key.trimmedDescription
         }
         allKeys.append(contentsOf: additionalKeys.map(\.expr))
         let keysName: ExprSyntax = "\(CodingKeysMap.Key.name(for: name))Keys"
@@ -64,14 +65,16 @@ where Wrapped: PropertyVariable {
             base.decoding(
                 in: context,
                 from: .container(
-                    container, key: "\(keysName)[0]", method: method)
+                    container, key: "\(keysName)[0]", method: method
+                )
             )
         }
     }
 }
 
 extension AliasedPropertyVariable: InitializableVariable
-where Wrapped: InitializableVariable {
+    where Wrapped: InitializableVariable
+{
     /// The initialization type of this variable.
     ///
     /// Initialization type is the same as underlying wrapped variable.

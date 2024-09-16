@@ -22,7 +22,7 @@ package struct CodedAt: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -35,8 +35,6 @@ package struct CodedAt: PropertyAttribute {
     /// * Macro usage is not duplicated for the same declaration.
     /// * If macro is attached to enum/protocol declaration:
     ///   * This attribute must be combined with `Codable`
-    ///     attribute.
-    ///   * This attribute isn't used combined with `UnTagged`
     ///     attribute.
     /// * else:
     ///   * Attached declaration is a variable declaration.
@@ -53,10 +51,7 @@ package struct CodedAt: PropertyAttribute {
             cantDuplicate()
             `if`(
                 isEnum || isProtocol,
-                AggregatedDiagnosticProducer {
-                    mustBeCombined(with: Codable.self)
-                    cantBeCombined(with: UnTagged.self)
-                },
+                mustBeCombined(with: Codable.self),
                 else: AggregatedDiagnosticProducer {
                     attachedToUngroupedVariable()
                     attachedToNonStaticVariable()
@@ -69,7 +64,8 @@ package struct CodedAt: PropertyAttribute {
 }
 
 extension Registration
-where Var == ExternallyTaggedEnumSwitcher, Decl == EnumDeclSyntax {
+    where Var == ExternallyTaggedEnumSwitcher, Decl == EnumDeclSyntax
+{
     /// Checks if enum declares internal tagging.
     ///
     /// Checks if identifier path provided with `CodedAt` macro,
@@ -98,10 +94,11 @@ where Var == ExternallyTaggedEnumSwitcher, Decl == EnumDeclSyntax {
             Registration<Decl, Key, InternallyTaggedEnumSwitcher<Variable>>
         ) -> Registration<Decl, Key, Switcher>
     ) -> Registration<Decl, Key, AnyEnumSwitcher>
-    where Variable: PropertyVariable, Switcher: EnumSwitcherVariable {
+        where Variable: PropertyVariable, Switcher: EnumSwitcherVariable
+    {
         guard
             let tagAttr = CodedAt(from: decl)
-        else { return self.updating(with: variable.any) }
+        else { return updating(with: variable.any) }
         let typeAttr = CodedAs(from: decl)
         let variable = InternallyTaggedEnumSwitcher(
             encodeContainer: encodeContainer, identifier: identifier,
@@ -109,7 +106,7 @@ where Var == ExternallyTaggedEnumSwitcher, Decl == EnumDeclSyntax {
             keyPath: tagAttr.keyPath(withExisting: []), codingKeys: codingKeys,
             decl: decl, context: context, variableBuilder: variableBuilder
         )
-        let newRegistration = switcherBuilder(self.updating(with: variable))
+        let newRegistration = switcherBuilder(updating(with: variable))
         return newRegistration.updating(with: newRegistration.variable.any)
     }
 }

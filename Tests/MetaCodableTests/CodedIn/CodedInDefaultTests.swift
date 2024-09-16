@@ -1,22 +1,21 @@
 #if SWIFT_SYNTAX_EXTENSION_MACRO_FIXED
-import SwiftDiagnostics
-import XCTest
+    import SwiftDiagnostics
+    import XCTest
 
-@testable import PluginCore
+    @testable import PluginCore
 
-final class CodedInDefaultTests: XCTestCase {
-
-    func testWithNoPath() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                let value: String
-            }
-            """,
-            expandedSource:
+    final class CodedInDefaultTests: XCTestCase {
+        func testWithNoPath() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    @Default("some")
+                    let value: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -28,14 +27,10 @@ final class CodedInDefaultTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        if let container = container {
-                            do {
-                                self.value = try container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                            } catch {
-                                self.value = "some"
-                            }
-                        } else {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        do {
+                            self.value = try container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
+                        } catch {
                             self.value = "some"
                         }
                     }
@@ -54,21 +49,21 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithNoPathOnOptionalType() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @CodedIn
-                @Default("some")
-                let value: String?
-            }
-            """,
-            expandedSource:
+        func testWithNoPathOnOptionalType() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    @CodedIn
+                    @Default("some")
+                    let value: String?
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String?
@@ -80,14 +75,10 @@ final class CodedInDefaultTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        if let container = container {
-                            do {
-                                self.value = try container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                            } catch {
-                                self.value = "some"
-                            }
-                        } else {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        do {
+                            self.value = try container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
+                        } catch {
                             self.value = "some"
                         }
                     }
@@ -106,71 +97,21 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
 
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @CodedIn
-                @Default("some")
-                let value: String!
-            }
-            """,
-            expandedSource:
+        func testWithSinglePath() throws {
+            assertMacroExpansion(
                 """
+                @Codable
+                @MemberInit
                 struct SomeCodable {
-                    let value: String!
-
-                    init(value: String! = "some") {
-                        self.value = value
-                    }
+                    @Default("some")
+                    @CodedIn("nested")
+                    let value: String
                 }
-
-                extension SomeCodable: Decodable {
-                    init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        if let container = container {
-                            do {
-                                self.value = try container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                            } catch {
-                                self.value = "some"
-                            }
-                        } else {
-                            self.value = "some"
-                        }
-                    }
-                }
-
-                extension SomeCodable: Encodable {
-                    func encode(to encoder: any Encoder) throws {
-                        var container = encoder.container(keyedBy: CodingKeys.self)
-                        try container.encodeIfPresent(self.value, forKey: CodingKeys.value)
-                    }
-                }
-
-                extension SomeCodable {
-                    enum CodingKeys: String, CodingKey {
-                        case value = "value"
-                    }
-                }
-                """
-        )
-    }
-
-    func testWithSinglePath() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("nested")
-                let value: String
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -182,26 +123,11 @@ final class CodedInDefaultTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        let nested_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_containerMissing: Bool
-                        if (try? container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_container = try? container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_containerMissing = false
-                        } else {
-                            nested_container = nil
-                            nested_containerMissing = true
-                        }
-                        if let container = container {
-                            if let nested_container = nested_container {
-                                do {
-                                    self.value = try nested_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                                } catch {
-                                    self.value = "some"
-                                }
-                            } else if nested_containerMissing {
-                                self.value = "some"
-                            } else {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        if let nested_container = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested) {
+                            do {
+                                self.value = try nested_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
+                            } catch {
                                 self.value = "some"
                             }
                         } else {
@@ -225,21 +151,21 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithSinglePathOnOptionalType() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("nested")
-                let value: String?
-            }
-            """,
-            expandedSource:
+        func testWithSinglePathOnOptionalType() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    @Default("some")
+                    @CodedIn("nested")
+                    let value: String?
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String?
@@ -251,26 +177,11 @@ final class CodedInDefaultTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        let nested_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_containerMissing: Bool
-                        if (try? container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_container = try? container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_containerMissing = false
-                        } else {
-                            nested_container = nil
-                            nested_containerMissing = true
-                        }
-                        if let container = container {
-                            if let nested_container = nested_container {
-                                do {
-                                    self.value = try nested_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                                } catch {
-                                    self.value = "some"
-                                }
-                            } else if nested_containerMissing {
-                                self.value = "some"
-                            } else {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        if let nested_container = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested) {
+                            do {
+                                self.value = try nested_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
+                            } catch {
                                 self.value = "some"
                             }
                         } else {
@@ -294,88 +205,21 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
 
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("nested")
-                let value: String!
-            }
-            """,
-            expandedSource:
+        func testWithNestedPath() throws {
+            assertMacroExpansion(
                 """
+                @Codable
+                @MemberInit
                 struct SomeCodable {
-                    let value: String!
-
-                    init(value: String! = "some") {
-                        self.value = value
-                    }
+                    @Default("some")
+                    @CodedIn("deeply", "nested")
+                    let value: String
                 }
-
-                extension SomeCodable: Decodable {
-                    init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        let nested_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_containerMissing: Bool
-                        if (try? container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_container = try? container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_containerMissing = false
-                        } else {
-                            nested_container = nil
-                            nested_containerMissing = true
-                        }
-                        if let container = container {
-                            if let nested_container = nested_container {
-                                do {
-                                    self.value = try nested_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                                } catch {
-                                    self.value = "some"
-                                }
-                            } else if nested_containerMissing {
-                                self.value = "some"
-                            } else {
-                                self.value = "some"
-                            }
-                        } else {
-                            self.value = "some"
-                        }
-                    }
-                }
-
-                extension SomeCodable: Encodable {
-                    func encode(to encoder: any Encoder) throws {
-                        var container = encoder.container(keyedBy: CodingKeys.self)
-                        var nested_container = container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                        try nested_container.encodeIfPresent(self.value, forKey: CodingKeys.value)
-                    }
-                }
-
-                extension SomeCodable {
-                    enum CodingKeys: String, CodingKey {
-                        case value = "value"
-                        case nested = "nested"
-                    }
-                }
-                """
-        )
-    }
-
-    func testWithNestedPath() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("deeply", "nested")
-                let value: String
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String
@@ -387,40 +231,14 @@ final class CodedInDefaultTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        let deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let deeply_containerMissing: Bool
-                        if (try? container?.decodeNil(forKey: CodingKeys.deeply)) == false {
-                            deeply_container = try? container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply)
-                            deeply_containerMissing = false
-                        } else {
-                            deeply_container = nil
-                            deeply_containerMissing = true
-                        }
-                        let nested_deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_deeply_containerMissing: Bool
-                        if (try? deeply_container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_deeply_container = try? deeply_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_deeply_containerMissing = false
-                        } else {
-                            nested_deeply_container = nil
-                            nested_deeply_containerMissing = true
-                        }
-                        if let container = container {
-                            if let deeply_container = deeply_container {
-                                if let nested_deeply_container = nested_deeply_container {
-                                    do {
-                                        self.value = try nested_deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                                    } catch {
-                                        self.value = "some"
-                                    }
-                                } else if nested_deeply_containerMissing {
-                                    self.value = "some"
-                                } else {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        if let deeply_container = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply) {
+                            if let nested_deeply_container = try? deeply_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested) {
+                                do {
+                                    self.value = try nested_deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
+                                } catch {
                                     self.value = "some"
                                 }
-                            } else if deeply_containerMissing {
-                                self.value = "some"
                             } else {
                                 self.value = "some"
                             }
@@ -447,21 +265,21 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithNestedPathOnOptionalType() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("deeply", "nested")
-                let value: String?
-            }
-            """,
-            expandedSource:
+        func testWithNestedPathOnOptionalType() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    @Default("some")
+                    @CodedIn("deeply", "nested")
+                    let value: String?
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value: String?
@@ -473,40 +291,14 @@ final class CodedInDefaultTests: XCTestCase {
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        let deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let deeply_containerMissing: Bool
-                        if (try? container?.decodeNil(forKey: CodingKeys.deeply)) == false {
-                            deeply_container = try? container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply)
-                            deeply_containerMissing = false
-                        } else {
-                            deeply_container = nil
-                            deeply_containerMissing = true
-                        }
-                        let nested_deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_deeply_containerMissing: Bool
-                        if (try? deeply_container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_deeply_container = try? deeply_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_deeply_containerMissing = false
-                        } else {
-                            nested_deeply_container = nil
-                            nested_deeply_containerMissing = true
-                        }
-                        if let container = container {
-                            if let deeply_container = deeply_container {
-                                if let nested_deeply_container = nested_deeply_container {
-                                    do {
-                                        self.value = try nested_deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                                    } catch {
-                                        self.value = "some"
-                                    }
-                                } else if nested_deeply_containerMissing {
-                                    self.value = "some"
-                                } else {
+                        let container = try decoder.container(keyedBy: CodingKeys.self)
+                        if let deeply_container = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply) {
+                            if let nested_deeply_container = try? deeply_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested) {
+                                do {
+                                    self.value = try nested_deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
+                                } catch {
                                     self.value = "some"
                                 }
-                            } else if deeply_containerMissing {
-                                self.value = "some"
                             } else {
                                 self.value = "some"
                             }
@@ -533,117 +325,33 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
+            )
+        }
 
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("deeply", "nested")
-                let value: String!
-            }
-            """,
-            expandedSource:
+        func testWithNestedPathOnMultiOptionalTypes() throws {
+            assertMacroExpansion(
                 """
+                @Codable
+                @MemberInit
                 struct SomeCodable {
-                    let value: String!
-
-                    init(value: String! = "some") {
-                        self.value = value
-                    }
+                    @Default("some")
+                    @CodedIn("deeply", "nested")
+                    let value1: String?
+                    @Default("some")
+                    @CodedIn("deeply", "nested")
+                    let value2: String?
+                    @CodedIn("deeply")
+                    let value3: String?
                 }
-
-                extension SomeCodable: Decodable {
-                    init(from decoder: any Decoder) throws {
-                        let container = try? decoder.container(keyedBy: CodingKeys.self)
-                        let deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let deeply_containerMissing: Bool
-                        if (try? container?.decodeNil(forKey: CodingKeys.deeply)) == false {
-                            deeply_container = try? container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply)
-                            deeply_containerMissing = false
-                        } else {
-                            deeply_container = nil
-                            deeply_containerMissing = true
-                        }
-                        let nested_deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_deeply_containerMissing: Bool
-                        if (try? deeply_container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_deeply_container = try? deeply_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_deeply_containerMissing = false
-                        } else {
-                            nested_deeply_container = nil
-                            nested_deeply_containerMissing = true
-                        }
-                        if let container = container {
-                            if let deeply_container = deeply_container {
-                                if let nested_deeply_container = nested_deeply_container {
-                                    do {
-                                        self.value = try nested_deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value) ?? "some"
-                                    } catch {
-                                        self.value = "some"
-                                    }
-                                } else if nested_deeply_containerMissing {
-                                    self.value = "some"
-                                } else {
-                                    self.value = "some"
-                                }
-                            } else if deeply_containerMissing {
-                                self.value = "some"
-                            } else {
-                                self.value = "some"
-                            }
-                        } else {
-                            self.value = "some"
-                        }
-                    }
-                }
-
-                extension SomeCodable: Encodable {
-                    func encode(to encoder: any Encoder) throws {
-                        var container = encoder.container(keyedBy: CodingKeys.self)
-                        var deeply_container = container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply)
-                        var nested_deeply_container = deeply_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                        try nested_deeply_container.encodeIfPresent(self.value, forKey: CodingKeys.value)
-                    }
-                }
-
-                extension SomeCodable {
-                    enum CodingKeys: String, CodingKey {
-                        case value = "value"
-                        case deeply = "deeply"
-                        case nested = "nested"
-                    }
-                }
-                """
-        )
-    }
-
-    func testWithNestedPathOnMultiOptionalTypes() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("deeply", "nested")
-                let value1: String?
-                @Default("some")
-                @CodedIn("deeply", "nested")
-                let value2: String!
-                @CodedIn("deeply")
-                let value3: String?
-            }
-            """,
-            expandedSource:
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value1: String?
-                    let value2: String!
+                    let value2: String?
                     let value3: String?
 
-                    init(value1: String? = "some", value2: String! = "some", value3: String? = nil) {
+                    init(value1: String? = "some", value2: String? = "some", value3: String? = nil) {
                         self.value1 = value1
                         self.value2 = value2
                         self.value3 = value3
@@ -653,19 +361,9 @@ final class CodedInDefaultTests: XCTestCase {
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let deeply_container = ((try? container.decodeNil(forKey: CodingKeys.deeply)) == false) ? try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply) : nil
-                        let nested_deeply_container: KeyedDecodingContainer<CodingKeys>?
-                        let nested_deeply_containerMissing: Bool
-                        if (try? deeply_container?.decodeNil(forKey: CodingKeys.nested)) == false {
-                            nested_deeply_container = try? deeply_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested)
-                            nested_deeply_containerMissing = false
-                        } else {
-                            nested_deeply_container = nil
-                            nested_deeply_containerMissing = true
-                        }
-                        if let deeply_container = deeply_container {
-                            self.value3 = try deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value3)
-                            if let nested_deeply_container = nested_deeply_container {
+                        if (try? container.decodeNil(forKey: CodingKeys.deeply)) == false {
+                            let deeply_container = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.deeply)
+                            if let nested_deeply_container = try? deeply_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.nested) {
                                 do {
                                     self.value1 = try nested_deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value1) ?? "some"
                                 } catch {
@@ -676,13 +374,11 @@ final class CodedInDefaultTests: XCTestCase {
                                 } catch {
                                     self.value2 = "some"
                                 }
-                            } else if nested_deeply_containerMissing {
-                                self.value1 = "some"
-                                self.value2 = "some"
                             } else {
                                 self.value1 = "some"
                                 self.value2 = "some"
                             }
+                            self.value3 = try deeply_container.decodeIfPresent(String.self, forKey: CodingKeys.value3)
                         } else {
                             self.value1 = "some"
                             self.value2 = "some"
@@ -712,119 +408,74 @@ final class CodedInDefaultTests: XCTestCase {
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testWithNestedPathOnMixedTypes() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            @MemberInit
-            struct SomeCodable {
-                @Default("some")
-                @CodedIn("deeply", "nested", "level")
-                let value1: String
-                @Default("some")
-                @CodedIn("deeply", "nested", "level")
-                let value2: String?
-                @Default("some")
-                @CodedIn("deeply", "nested", "level")
-                let value3: String!
-                @CodedAt("deeply", "nested")
-                let value4: String?
-                @CodedAt("deeply", "nested")
-                let value5: String!
-                @CodedAt("deeply")
-                let value6: String
-            }
-            """,
-            expandedSource: // FIXME: not compilable
+        func testWithNestedPathOnMixedTypes() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                @MemberInit
+                struct SomeCodable {
+                    @Default("some")
+                    @CodedIn("deeply", "nested", "level")
+                    let value1: String
+                    @Default("some")
+                    @CodedIn("deeply", "nested", "level")
+                    let value2: String?
+                    @CodedAt("deeply", "nested")
+                    let value3: String?
+                    @CodedAt("deeply")
+                    let value4: String
+                }
+                """,
+                expandedSource:
                 """
                 struct SomeCodable {
                     let value1: String
                     let value2: String?
-                    let value3: String!
-                    let value4: String?
-                    let value5: String!
-                    let value6: String
+                    let value3: String?
+                    let value4: String
 
-                    init(value6: String, value4: String? = nil, value5: String! = nil, value1: String = "some", value2: String? = "some", value3: String! = "some") {
-                        self.value6 = value6
+                    init(value4: String, value3: String? = nil, value1: String = "some", value2: String? = "some") {
                         self.value4 = value4
-                        self.value5 = value5
+                        self.value3 = value3
                         self.value1 = value1
                         self.value2 = value2
-                        self.value3 = value3
                     }
                 }
 
                 extension SomeCodable: Decodable {
                     init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let value6_container = ((try? container.decodeNil(forKey: CodingKeys.value6)) == false) ? try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value6) : nil
-                        let value4_value6_container: KeyedDecodingContainer<CodingKeys>?
-                        let value4_value6_containerMissing: Bool
-                        if (try? value6_container?.decodeNil(forKey: CodingKeys.value4)) == false {
-                            value4_value6_container = try? value6_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
-                            value4_value6_containerMissing = false
-                        } else {
-                            value4_value6_container = nil
-                            value4_value6_containerMissing = true
-                        }
-                        let level_value4_value6_container: KeyedDecodingContainer<CodingKeys>?
-                        let level_value4_value6_containerMissing: Bool
-                        if (try? value4_value6_container?.decodeNil(forKey: CodingKeys.level)) == false {
-                            level_value4_value6_container = try? value4_value6_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level)
-                            level_value4_value6_containerMissing = false
-                        } else {
-                            level_value4_value6_container = nil
-                            level_value4_value6_containerMissing = true
-                        }
-                        self.value6 = try container.decode(String.self, forKey: CodingKeys.value6)
-                        if let value6_container = value6_container {
-                            self.value4 = try value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value4)
-                            self.value5 = try value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value4)
-                            if let value4_value6_container = value4_value6_container {
-                                if let level_value4_value6_container = level_value4_value6_container {
+                        self.value4 = try container.decode(String.self, forKey: CodingKeys.value4)
+                        if (try? container.decodeNil(forKey: CodingKeys.value4)) == false {
+                            let value4_container = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
+                            self.value3 = try value4_container.decodeIfPresent(String.self, forKey: CodingKeys.value3)
+                            if let value3_value4_container = try? value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value3) {
+                                if let level_value3_value4_container = try? value3_value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level) {
                                     do {
-                                        self.value1 = try level_value4_value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value1) ?? "some"
+                                        self.value1 = try level_value3_value4_container.decodeIfPresent(String.self, forKey: CodingKeys.value1) ?? "some"
                                     } catch {
                                         self.value1 = "some"
                                     }
                                     do {
-                                        self.value2 = try level_value4_value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value2) ?? "some"
+                                        self.value2 = try level_value3_value4_container.decodeIfPresent(String.self, forKey: CodingKeys.value2) ?? "some"
                                     } catch {
                                         self.value2 = "some"
                                     }
-                                    do {
-                                        self.value3 = try level_value4_value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value3) ?? "some"
-                                    } catch {
-                                        self.value3 = "some"
-                                    }
-                                } else if level_value4_value6_containerMissing {
-                                    self.value1 = "some"
-                                    self.value2 = "some"
-                                    self.value3 = "some"
                                 } else {
                                     self.value1 = "some"
                                     self.value2 = "some"
-                                    self.value3 = "some"
                                 }
-                            } else if value4_value6_containerMissing {
-                                self.value1 = "some"
-                                self.value2 = "some"
-                                self.value3 = "some"
                             } else {
                                 self.value1 = "some"
                                 self.value2 = "some"
-                                self.value3 = "some"
                             }
                         } else {
-                            self.value4 = nil
-                            self.value5 = nil
+                            self.value3 = nil
                             self.value1 = "some"
                             self.value2 = "some"
-                            self.value3 = "some"
                         }
                     }
                 }
@@ -832,153 +483,104 @@ final class CodedInDefaultTests: XCTestCase {
                 extension SomeCodable: Encodable {
                     func encode(to encoder: any Encoder) throws {
                         var container = encoder.container(keyedBy: CodingKeys.self)
-                        try container.encode(self.value6, forKey: CodingKeys.value6)
-                        var value6_container = container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value6)
-                        try value6_container.encodeIfPresent(self.value4, forKey: CodingKeys.value4)
-                        try value6_container.encodeIfPresent(self.value5, forKey: CodingKeys.value4)
-                        var value4_value6_container = value6_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
-                        var level_value4_value6_container = value4_value6_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level)
-                        try level_value4_value6_container.encode(self.value1, forKey: CodingKeys.value1)
-                        try level_value4_value6_container.encodeIfPresent(self.value2, forKey: CodingKeys.value2)
-                        try level_value4_value6_container.encodeIfPresent(self.value3, forKey: CodingKeys.value3)
+                        try container.encode(self.value4, forKey: CodingKeys.value4)
+                        var value4_container = container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
+                        try value4_container.encodeIfPresent(self.value3, forKey: CodingKeys.value3)
+                        var value3_value4_container = value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value3)
+                        var level_value3_value4_container = value3_value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level)
+                        try level_value3_value4_container.encode(self.value1, forKey: CodingKeys.value1)
+                        try level_value3_value4_container.encodeIfPresent(self.value2, forKey: CodingKeys.value2)
                     }
                 }
 
                 extension SomeCodable {
                     enum CodingKeys: String, CodingKey {
                         case value1 = "value1"
-                        case value6 = "deeply"
-                        case value4 = "nested"
+                        case value4 = "deeply"
+                        case value3 = "nested"
                         case level = "level"
                         case value2 = "value2"
-                        case value3 = "value3"
                     }
                 }
                 """
-        )
-    }
+            )
+        }
 
-    func testClassWithNestedPathOnMixedTypes() throws {
-        assertMacroExpansion(
-            """
-            @Codable
-            class SomeCodable {
-                @Default("some")
-                @CodedIn("deeply", "nested", "level")
-                let value1: String
-                @Default("some")
-                @CodedIn("deeply", "nested", "level")
-                let value2: String?
-                @Default("some")
-                @CodedIn("deeply", "nested", "level")
-                let value3: String!
-                @CodedAt("deeply", "nested")
-                let value4: String?
-                @CodedAt("deeply", "nested")
-                let value5: String!
-                @CodedAt("deeply")
-                let value6: String
-            }
-            """,
-            expandedSource:  // FIXME: not compilable
+        func testClassWithNestedPathOnMixedTypes() throws {
+            assertMacroExpansion(
+                """
+                @Codable
+                class SomeCodable {
+                    @Default("some")
+                    @CodedIn("deeply", "nested", "level")
+                    let value1: String
+                    @Default("some")
+                    @CodedIn("deeply", "nested", "level")
+                    let value2: String?
+                    @CodedAt("deeply", "nested")
+                    let value3: String?
+                    @CodedAt("deeply")
+                    let value4: String
+                }
+                """,
+                expandedSource:
                 """
                 class SomeCodable {
                     let value1: String
                     let value2: String?
-                    let value3: String!
-                    let value4: String?
-                    let value5: String!
-                    let value6: String
+                    let value3: String?
+                    let value4: String
 
                     required init(from decoder: any Decoder) throws {
                         let container = try decoder.container(keyedBy: CodingKeys.self)
-                        let value6_container = ((try? container.decodeNil(forKey: CodingKeys.value6)) == false) ? try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value6) : nil
-                        let value4_value6_container: KeyedDecodingContainer<CodingKeys>?
-                        let value4_value6_containerMissing: Bool
-                        if (try? value6_container?.decodeNil(forKey: CodingKeys.value4)) == false {
-                            value4_value6_container = try? value6_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
-                            value4_value6_containerMissing = false
-                        } else {
-                            value4_value6_container = nil
-                            value4_value6_containerMissing = true
-                        }
-                        let level_value4_value6_container: KeyedDecodingContainer<CodingKeys>?
-                        let level_value4_value6_containerMissing: Bool
-                        if (try? value4_value6_container?.decodeNil(forKey: CodingKeys.level)) == false {
-                            level_value4_value6_container = try? value4_value6_container?.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level)
-                            level_value4_value6_containerMissing = false
-                        } else {
-                            level_value4_value6_container = nil
-                            level_value4_value6_containerMissing = true
-                        }
-                        self.value6 = try container.decode(String.self, forKey: CodingKeys.value6)
-                        if let value6_container = value6_container {
-                            self.value4 = try value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value4)
-                            self.value5 = try value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value4)
-                            if let value4_value6_container = value4_value6_container {
-                                if let level_value4_value6_container = level_value4_value6_container {
+                        self.value4 = try container.decode(String.self, forKey: CodingKeys.value4)
+                        if (try? container.decodeNil(forKey: CodingKeys.value4)) == false {
+                            let value4_container = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
+                            self.value3 = try value4_container.decodeIfPresent(String.self, forKey: CodingKeys.value3)
+                            if let value3_value4_container = try? value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value3) {
+                                if let level_value3_value4_container = try? value3_value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level) {
                                     do {
-                                        self.value1 = try level_value4_value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value1) ?? "some"
+                                        self.value1 = try level_value3_value4_container.decodeIfPresent(String.self, forKey: CodingKeys.value1) ?? "some"
                                     } catch {
                                         self.value1 = "some"
                                     }
                                     do {
-                                        self.value2 = try level_value4_value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value2) ?? "some"
+                                        self.value2 = try level_value3_value4_container.decodeIfPresent(String.self, forKey: CodingKeys.value2) ?? "some"
                                     } catch {
                                         self.value2 = "some"
                                     }
-                                    do {
-                                        self.value3 = try level_value4_value6_container.decodeIfPresent(String.self, forKey: CodingKeys.value3) ?? "some"
-                                    } catch {
-                                        self.value3 = "some"
-                                    }
-                                } else if level_value4_value6_containerMissing {
-                                    self.value1 = "some"
-                                    self.value2 = "some"
-                                    self.value3 = "some"
                                 } else {
                                     self.value1 = "some"
                                     self.value2 = "some"
-                                    self.value3 = "some"
                                 }
-                            } else if value4_value6_containerMissing {
-                                self.value1 = "some"
-                                self.value2 = "some"
-                                self.value3 = "some"
                             } else {
                                 self.value1 = "some"
                                 self.value2 = "some"
-                                self.value3 = "some"
                             }
                         } else {
-                            self.value4 = nil
-                            self.value5 = nil
+                            self.value3 = nil
                             self.value1 = "some"
                             self.value2 = "some"
-                            self.value3 = "some"
                         }
                     }
 
                     func encode(to encoder: any Encoder) throws {
                         var container = encoder.container(keyedBy: CodingKeys.self)
-                        try container.encode(self.value6, forKey: CodingKeys.value6)
-                        var value6_container = container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value6)
-                        try value6_container.encodeIfPresent(self.value4, forKey: CodingKeys.value4)
-                        try value6_container.encodeIfPresent(self.value5, forKey: CodingKeys.value4)
-                        var value4_value6_container = value6_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
-                        var level_value4_value6_container = value4_value6_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level)
-                        try level_value4_value6_container.encode(self.value1, forKey: CodingKeys.value1)
-                        try level_value4_value6_container.encodeIfPresent(self.value2, forKey: CodingKeys.value2)
-                        try level_value4_value6_container.encodeIfPresent(self.value3, forKey: CodingKeys.value3)
+                        try container.encode(self.value4, forKey: CodingKeys.value4)
+                        var value4_container = container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value4)
+                        try value4_container.encodeIfPresent(self.value3, forKey: CodingKeys.value3)
+                        var value3_value4_container = value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.value3)
+                        var level_value3_value4_container = value3_value4_container.nestedContainer(keyedBy: CodingKeys.self, forKey: CodingKeys.level)
+                        try level_value3_value4_container.encode(self.value1, forKey: CodingKeys.value1)
+                        try level_value3_value4_container.encodeIfPresent(self.value2, forKey: CodingKeys.value2)
                     }
 
                     enum CodingKeys: String, CodingKey {
                         case value1 = "value1"
-                        case value6 = "deeply"
-                        case value4 = "nested"
+                        case value4 = "deeply"
+                        case value3 = "nested"
                         case level = "level"
                         case value2 = "value2"
-                        case value3 = "value3"
                     }
                 }
 
@@ -988,7 +590,7 @@ final class CodedInDefaultTests: XCTestCase {
                 extension SomeCodable: Encodable {
                 }
                 """
-        )
+            )
+        }
     }
-}
 #endif

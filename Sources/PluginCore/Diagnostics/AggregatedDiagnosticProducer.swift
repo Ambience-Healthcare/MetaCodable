@@ -35,7 +35,7 @@ struct AggregatedDiagnosticProducer: DiagnosticProducer {
             /// `producer.produce(for:in:)` should be invoked first to avoid
             /// diagnostic evaluation termination due to short-circuit
             /// evaluation.
-            return producer.produce(for: syntax, in: context) || partialResult
+            producer.produce(for: syntax, in: context) || partialResult
         }
     }
 }

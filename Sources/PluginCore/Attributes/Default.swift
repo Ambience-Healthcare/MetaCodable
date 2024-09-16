@@ -10,33 +10,10 @@ package struct Default: PropertyAttribute {
     /// during initialization.
     let node: AttributeSyntax
 
-    /// The default value expression provided for value missing case.
-    ///
-    /// This expression should be used only when value is missing
-    /// in the decoding syntax.
-    var onMissingExpr: ExprSyntax {
-        return node.arguments?.as(LabeledExprListSyntax.self)?.first { expr in
-            expr.label?.tokenKind == .identifier("ifMissing")
-        }?.expression
-            ?? node.arguments!
+    /// The default value expression provided.
+    var expr: ExprSyntax {
+        return node.arguments!
             .as(LabeledExprListSyntax.self)!.first!.expression
-    }
-
-    /// The default value expression provided for errors.
-    ///
-    /// This expression should be used for errors other than
-    /// value is missing in the decoding syntax.
-    var onErrorExpr: ExprSyntax? {
-        guard
-            let exprs = node.arguments?.as(LabeledExprListSyntax.self),
-            !exprs.isEmpty
-        else { return nil }
-        guard
-            exprs.count > 1 || exprs.first?.label != nil
-        else { return exprs.first!.expression }
-        return node.arguments?.as(LabeledExprListSyntax.self)?.first { expr in
-            expr.label?.tokenKind == .identifier("forErrors")
-        }?.expression
     }
 
     /// Creates a new instance with the provided node.
@@ -49,7 +26,7 @@ package struct Default: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -79,7 +56,7 @@ package struct Default: PropertyAttribute {
 }
 
 extension Registration
-where
+    where
     Decl: AttributableDeclSyntax, Var: PropertyVariable,
     Var.Initialization == RequiredInitialization
 {
@@ -93,32 +70,24 @@ where
     ///
     /// - Returns: Newly built registration with default expression data.
     func addDefaultValueIfExists() -> Registration<Decl, Key, DefOutput> {
-        guard let attr = Default(from: self.decl)
-        else { return self.updating(with: self.variable.any) }
-        let newVar = self.variable.with(
-            onMissingExpr: attr.onMissingExpr, onErrorExpr: attr.onErrorExpr
-        )
-        return self.updating(with: newVar.any)
+        guard let attr = Default(from: decl)
+        else { return updating(with: variable.any) }
+        let newVar = variable.with(default: attr.expr)
+        return updating(with: newVar.any)
     }
 }
 
-fileprivate extension PropertyVariable
-where Initialization == RequiredInitialization {
+private extension PropertyVariable
+    where Initialization == RequiredInitialization
+{
     /// Update variable data with the default value expression provided.
     ///
     /// `DefaultValueVariable` is created with this variable as base
     /// and default expression provided.
     ///
-    /// - Parameters:
-    ///   - mExpr: The missing value default expression to add.
-    ///   - eExpr: The other errors default expression to add.
-    ///
+    /// - Parameter expr: The default expression to add.
     /// - Returns: Created variable data with default expression.
-    func with(
-        onMissingExpr mExpr: ExprSyntax, onErrorExpr eExpr: ExprSyntax?
-    ) -> DefaultValueVariable<Self> {
-        return .init(
-            base: self, options: .init(onMissingExpr: mExpr, onErrorExpr: eExpr)
-        )
+    func with(default expr: ExprSyntax) -> DefaultValueVariable<Self> {
+        return .init(base: self, options: .init(expr: expr))
     }
 }

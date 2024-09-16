@@ -42,7 +42,7 @@ struct EnumCaseVariableDeclSyntax: MemberGroupSyntax, AttributableDeclSyntax {
     ///
     /// - Parameter input: The input to child syntax.
     /// - Returns: All the individual associated variables syntax.
-    func codableMembers(input: Void) -> [AssociatedDeclSyntax] {
+    func codableMembers(input _: Void) -> [AssociatedDeclSyntax] {
         guard let parameterClause = element.parameterClause else { return [] }
         return parameterClause.parameters.enumerated().map { index, param in
             let name: TokenSyntax

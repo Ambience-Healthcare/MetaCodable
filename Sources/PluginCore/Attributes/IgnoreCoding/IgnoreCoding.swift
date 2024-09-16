@@ -35,7 +35,7 @@ package struct IgnoreCoding: PropertyAttribute {
     init?(from node: AttributeSyntax) {
         guard
             node.attributeName.as(IdentifierTypeSyntax.self)!
-                .name.text == Self.name
+            .name.text == Self.name
         else { return nil }
         self.node = node
     }
@@ -75,11 +75,7 @@ package struct IgnoreCoding: PropertyAttribute {
     }
 }
 
-extension Registration
-where
-    Decl: AttributableDeclSyntax, Var: ConditionalVariable,
-    Var.Generated: ConditionalVariableSyntax
-{
+extension Registration where Decl: AttributableDeclSyntax {
     /// The output registration variable type that handles conditional
     /// decoding/encoding data.
     typealias ConditionalOutput = ConditionalCodingVariable<Var>
@@ -99,18 +95,14 @@ where
     ///   data.
     func checkCodingIgnored() -> Registration<Decl, Key, ConditionalOutput> {
         typealias Output = ConditionalOutput
-        let ignoreCoding = IgnoreCoding(from: self.decl) != nil
-        let ignoreDecoding = IgnoreDecoding(from: self.decl) != nil
-        let ignoreEncodingAttr = IgnoreEncoding(from: self.decl)
-        let conditionExpr = ignoreEncodingAttr?.conditionExpr
-        let ignoreEncoding = ignoreEncodingAttr != nil && conditionExpr == nil
+        let ignoreCoding = IgnoreCoding(from: decl) != nil
+        let ignoreDecoding = IgnoreDecoding(from: decl) != nil
+        let ignoreEncoding = IgnoreEncoding(from: decl) != nil
         let decode = !ignoreCoding && !ignoreDecoding
         let encode = !ignoreCoding && !ignoreEncoding
-        let options = Output.Options(
-            decode: decode, encode: encode, encodingConditionExpr: conditionExpr
-        )
-        let newVariable = Output(base: self.variable, options: options)
-        return self.updating(with: newVariable)
+        let options = Output.Options(decode: decode, encode: encode)
+        let newVariable = Output(base: variable, options: options)
+        return updating(with: newVariable)
     }
 }
 
@@ -119,7 +111,7 @@ where
 ///
 /// Attaching attributes of this type to computed properties indicates
 /// this variable should be encoded for the type.
-fileprivate protocol CodingAttribute: PropertyAttribute {}
+private protocol CodingAttribute: PropertyAttribute {}
 extension CodedIn: CodingAttribute {}
 extension CodedAt: CodingAttribute {}
 extension CodedBy: CodingAttribute {}

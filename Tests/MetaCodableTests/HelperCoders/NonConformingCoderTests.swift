@@ -57,17 +57,17 @@ final class NonConformingCoderTests: XCTestCase {
     }
 }
 
-fileprivate func json(
+private func json(
     _ float: some Codable,
     file: StaticString = #file,
     line: UInt = #line
 ) throws -> Data {
     let quote = float is String ? "\"" : ""
     let jsonStr = """
-        {
-            "float": \(quote)\(float)\(quote)
-        }
-        """
+    {
+        "float": \(quote)\(float)\(quote)
+    }
+    """
     return try XCTUnwrap(
         jsonStr.data(using: .utf8),
         file: file, line: line
@@ -75,7 +75,7 @@ fileprivate func json(
 }
 
 @Codable
-fileprivate struct Model {
+private struct Model {
     @CodedBy(
         NonConformingCoder<Double>(
             positiveInfinity: "➕♾️",

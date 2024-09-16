@@ -8,7 +8,7 @@ import PackagePlugin
 protocol MetaProtocolCodableSourceTarget {
     /// Type representing sequence of files.
     associatedtype FileSequence: Sequence
-    where FileSequence.Element == FileList.Element
+        where FileSequence.Element == FileList.Element
 
     /// The name of the module produced
     /// by the target.
@@ -71,12 +71,12 @@ extension Config {
             allTargets = targets
         case .local:
             allTargets = context.localTargets.filter { localTarget in
-                return target.recursiveTargets.contains { target in
-                    return target.moduleName == localTarget.moduleName
+                target.recursiveTargets.contains { target in
+                    target.moduleName == localTarget.moduleName
                 }
             }
             modules = allTargets.lazy.map(\.moduleName).filter { module in
-                return module != target.moduleName
+                module != target.moduleName
             }
         case .recursive:
             var targets = target.recursiveTargets

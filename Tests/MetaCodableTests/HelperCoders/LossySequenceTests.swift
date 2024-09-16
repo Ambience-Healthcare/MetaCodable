@@ -2,7 +2,6 @@ import MetaCodable
 import XCTest
 
 final class LossySequenceTests: XCTestCase {
-
     func testInvalidDataType() throws {
         do {
             let json = #"{"data":1}"#.data(using: .utf8)!
@@ -89,21 +88,21 @@ final class LossySequenceTests: XCTestCase {
 }
 
 @Codable
-fileprivate struct Container {
+private struct Container {
     @CodedBy(LossySequenceCoder<[String]>())
     let data: [String]
 }
 
 @Codable
 @MemberInit
-fileprivate struct DefaultContainer {
+private struct DefaultContainer {
     @Default(["some"])
     @CodedBy(LossySequenceCoder<[String]>())
     let data: [String]
 }
 
 @Codable
-fileprivate struct OptionalContainer {
+private struct OptionalContainer {
     @CodedBy(LossySequenceCoder<[String]>())
     let data: [String]?
 }

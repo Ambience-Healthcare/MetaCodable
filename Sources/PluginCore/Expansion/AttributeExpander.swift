@@ -37,7 +37,7 @@ struct AttributeExpander {
             let typeVar = variable as? any TypeVariable
         else { return nil }
         self.variable = typeVar
-        self.options = .init(for: declaration)
+        options = .init(for: declaration)
     }
 
     /// Generates extension declarations for `Codable` macro.
@@ -209,7 +209,7 @@ struct AttributeExpander {
         guard
             let variable = variable as? any InitializableVariable,
             let initializations = variable.initializing(in: context)
-                as? [AnyInitialization]
+            as? [AnyInitialization]
         else { return [] }
 
         var generator = options.initGenerator

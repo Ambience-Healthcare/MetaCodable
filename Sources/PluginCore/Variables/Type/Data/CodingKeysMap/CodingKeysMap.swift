@@ -1,4 +1,4 @@
-import OrderedCollections
+import MCOrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -56,7 +56,7 @@ package final class CodingKeysMap {
     package init(typeName: TokenSyntax, fallbackTypeName: TokenSyntax? = nil) {
         self.typeName = typeName
         self.fallbackTypeName = fallbackTypeName
-        self.data = [:]
+        data = [:]
     }
 
     /// Generates case names for provided keys
@@ -126,7 +126,7 @@ package final class CodingKeysMap {
             }
 
             data[key] = {
-                if !currentCases.contains(fieldName) && !fieldName.isEmpty {
+                if !currentCases.contains(fieldName), !fieldName.isEmpty {
                     if !invalidCaseNames.contains(fieldName) {
                         return .builtWithKey(.identifier(fieldName))
                     } else if !currentCases.contains("`\(fieldName)`") {
@@ -165,7 +165,7 @@ package final class CodingKeysMap {
     ///
     /// - Parameter context: The macro expansion context.
     /// - Returns: The generated enum declaration syntax.
-    func decl(in context: some MacroExpansionContext) -> DeclSyntax? {
+    func decl(in _: some MacroExpansionContext) -> DeclSyntax? {
         guard !data.isEmpty, !usedKeys.isEmpty else { return nil }
         let clause = InheritanceClauseSyntax {
             InheritedTypeSyntax(type: "String" as TypeSyntax)
@@ -180,7 +180,7 @@ package final class CodingKeysMap {
     }
 }
 
-fileprivate extension CodingKeysMap {
+private extension CodingKeysMap {
     /// Creates camel case `String`
     ///
     /// Removes non-alphanumeric characters
@@ -240,7 +240,7 @@ private let invalidCaseNames: [String] = [
     "func",
     "guard",
     "if",
-    "import",
+    " import",
     "in",
     "init",
     "inout",

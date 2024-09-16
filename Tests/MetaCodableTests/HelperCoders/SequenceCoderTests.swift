@@ -121,27 +121,27 @@ final class SequenceCoderTests: XCTestCase {
 }
 
 @Codable
-fileprivate struct Container {
+private struct Container {
     @CodedBy(SequenceCoder(output: [String].self))
     let data: [String]
 }
 
 @Codable
-fileprivate struct LossyContainer {
+private struct LossyContainer {
     @CodedBy(SequenceCoder(output: [String].self, configuration: .lossy))
     let data: [String]
 }
 
 @Codable
 @MemberInit
-fileprivate struct DefaultContainer {
+private struct DefaultContainer {
     @CodedBy(SequenceCoder(configuration: .default(["some"])))
     let data: [String]
 }
 
 @Codable
 @MemberInit
-fileprivate struct LossyDefaultContainer {
+private struct LossyDefaultContainer {
     @CodedBy(SequenceCoder(configuration: [.lossy, .default(["some"])]))
     let data: [String]
 }

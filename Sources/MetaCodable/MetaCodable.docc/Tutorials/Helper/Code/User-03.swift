@@ -6,7 +6,8 @@ struct User {
 }
 
 struct TwoKeyCoder<Coded>: HelperCoder
-where Coded: Codable {
+    where Coded: Codable
+{
     let decodingKey: String
     let encodingKey: String
 
@@ -18,7 +19,7 @@ where Coded: Codable {
             self.stringValue = stringValue
         }
 
-        init?(intValue: Int) {
+        init?(intValue _: Int) {
             return nil
         }
     }

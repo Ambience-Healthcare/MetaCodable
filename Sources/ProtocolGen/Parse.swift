@@ -13,8 +13,8 @@ extension ProtocolGen {
         /// Configuration for this command, including custom help text.
         static let configuration = CommandConfiguration(
             abstract: """
-                Parse source files syntax to intermediate representation, final syntax is generated from this representation.
-                """
+            Parse source files syntax to intermediate representation, final syntax is generated from this representation.
+            """
         )
 
         /// The path swift source of file to parse.
@@ -37,7 +37,7 @@ extension ProtocolGen {
         func parse(declaration: ProtocolDeclSyntax) -> SourceData {
             let codable = declaration.attributes.contains { attribute in
                 return switch attribute {
-                case .attribute(let attr):
+                case let .attribute(attr):
                     PluginCore.Codable(from: attr) != nil
                 default:
                     false
@@ -46,7 +46,7 @@ extension ProtocolGen {
             guard codable else { return .init(protocols: [:]) }
             let attributes = declaration.attributes.compactMap { attribute in
                 return switch attribute {
-                case .attribute(let attr):
+                case let .attribute(attr):
                     attr.trimmedDescription
                 default:
                     nil
@@ -110,7 +110,7 @@ extension ProtocolGen {
                 } ?? [:]
             let data = SourceData(protocols: protocols)
             let childDatas = decl.memberBlock.members.map { member in
-                return parse(declaration: member.decl)
+                parse(declaration: member.decl)
             }
             return data.merging(childDatas, in: decl.currentType)
         }
@@ -129,7 +129,7 @@ extension ProtocolGen {
                 into: SourceData(protocols: [:])
             ) { partialResult, block in
                 switch block.item {
-                case .decl(let decl):
+                case let .decl(decl):
                     let data = parse(declaration: decl)
                     partialResult = partialResult.merging(data)
                 default:

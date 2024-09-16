@@ -61,7 +61,7 @@ extension CodedAt: KeyPathProvider {
     ///
     /// - Parameter path: Current `CodingKey` path.
     /// - Returns: Updated `CodingKey` path.
-    func keyPath(withExisting path: [String]) -> [String] { providedPath }
+    func keyPath(withExisting _: [String]) -> [String] { providedPath }
 }
 
 extension CodedIn: KeyPathProvider {
@@ -99,10 +99,10 @@ extension Registration where Key == [String] {
     ) -> Registration<Decl, Key, KeyedVariable<Var>> {
         typealias Output = KeyedVariable<Var>
         let options = Output.Options(code: provider.provided)
-        let newVar = Output(base: self.variable, options: options)
-        let output = self.updating(with: newVar)
+        let newVar = Output(base: variable, options: options)
+        let output = updating(with: newVar)
         guard provider.provided else { return output }
-        let updatedPath = provider.keyPath(withExisting: self.key)
+        let updatedPath = provider.keyPath(withExisting: key)
         return output.updating(with: updatedPath)
     }
 }

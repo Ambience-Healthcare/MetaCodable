@@ -32,8 +32,8 @@ extension CodingKeysMap {
         /// The actual case name token syntax.
         var token: TokenSyntax {
             switch self {
-            case .field(let token), .nestedKeyField(let token),
-                .builtWithKey(let token):
+            case let .field(token), let .nestedKeyField(token),
+                 let .builtWithKey(token):
                 return token
             }
         }
@@ -42,8 +42,8 @@ extension CodingKeysMap {
         /// token syntax as a string.
         var name: String {
             switch self {
-            case .field(let token), .nestedKeyField(let token),
-                .builtWithKey(let token):
+            case let .field(token), let .nestedKeyField(token),
+                 let .builtWithKey(token):
                 return CodingKeysMap.Key.name(for: token).text
             }
         }

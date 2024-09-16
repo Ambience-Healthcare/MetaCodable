@@ -15,8 +15,8 @@ extension ProtocolGen {
         /// Configuration for this command, including custom help text.
         static let configuration = CommandConfiguration(
             abstract: """
-                Generate decoding/encoding syntax from intermediate representations.
-                """
+            Generate decoding/encoding syntax from intermediate representations.
+            """
         )
 
         /// The paths to stored `SourceData`s to aggregate.
@@ -58,7 +58,7 @@ extension ProtocolGen {
                 }
                 var data = SourceData.aggregate(datas: datas)
                 data.protocols = data.protocols.filter { _, value in
-                    return !value.types.isEmpty && !value.attributes.isEmpty
+                    !value.types.isEmpty && !value.attributes.isEmpty
                 }
                 return data
             }
@@ -204,8 +204,8 @@ extension ProtocolGen {
                 let args = LabeledExprListSyntax {
                     for (arg, variable) in zip(oldArgs, variables) {
                         let newExpr: ExprSyntax = """
-                            \(arg.expression) as \(variable.type)
-                            """
+                        \(arg.expression) as \(variable.type)
+                        """
                         LabeledExprSyntax(label: arg.label, expression: newExpr)
                     }
                 }
@@ -250,12 +250,14 @@ extension ProtocolGen {
             let dMethod = TypeCodingLocation.Method.decode(methodName: "decode")
             let dConform = TypeSyntax(stringLiteral: dMethod.protocol)
             let dLocation = TypeCodingLocation(
-                method: dMethod, conformance: dConform)
+                method: dMethod, conformance: dConform
+            )
             let dGenerated = variable.decoding(in: context, from: dLocation)
             let eMethod = TypeCodingLocation.Method.encode
             let eConform = TypeSyntax(stringLiteral: eMethod.protocol)
             let eLocation = TypeCodingLocation(
-                method: eMethod, conformance: eConform)
+                method: eMethod, conformance: eConform
+            )
             let eGenerated = variable.encoding(in: context, to: eLocation)
             let codingKeys = variable.codingKeys(
                 confirmingTo: [dConform, eConform], in: context
